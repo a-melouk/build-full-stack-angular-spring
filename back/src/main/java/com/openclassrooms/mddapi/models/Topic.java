@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,7 +16,6 @@ import java.util.List;
 })
 @Data
 @Accessors(chain = true)
-@EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(of = {"id"})
 @Builder
 @NoArgsConstructor
@@ -37,10 +34,6 @@ public class Topic {
 
     @Size(max = 255)
     private String description;
-
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
