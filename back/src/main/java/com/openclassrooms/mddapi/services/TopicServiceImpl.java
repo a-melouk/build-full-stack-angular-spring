@@ -1,5 +1,7 @@
 package com.openclassrooms.mddapi.services;
 
+import com.openclassrooms.mddapi.dto.TopicDto;
+import com.openclassrooms.mddapi.mappers.TopicMapper;
 import com.openclassrooms.mddapi.models.Topic;
 import com.openclassrooms.mddapi.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +12,15 @@ import java.util.List;
 @Service
 public class TopicServiceImpl implements TopicService {
 
-    private final TopicRepository topicRepository;
+    @Autowired
+    private TopicRepository topicRepository;
 
     @Autowired
-    public TopicServiceImpl(TopicRepository topicRepository) {
-        this.topicRepository = topicRepository;
-    }
+    private TopicMapper topicMapper;
 
     @Override
-    public List<Topic> findAll() {
-        return this.topicRepository.findAll();
+    public List<TopicDto> findAll() {
+        List<Topic> topics = this.topicRepository.findAll();
+        return topicMapper.toDtoList(topics);
     }
 }
