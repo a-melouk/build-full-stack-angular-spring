@@ -4,10 +4,10 @@ import { HomeComponent } from './pages/home/home.component';
 
 // consider a guard combined with canLoad / canActivate route option
 // to manage unauthenticated user to access private routes
-const routes: Routes = [{ path: '', component: HomeComponent }];
+const routes: Routes = [{ path: '', component: HomeComponent }, { path: 'topics', loadChildren: () => import('./features/topics/topics.module').then(m => m.TopicsModule) }];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }
