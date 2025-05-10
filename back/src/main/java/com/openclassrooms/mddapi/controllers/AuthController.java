@@ -8,16 +8,20 @@ import com.openclassrooms.mddapi.exception.UserNotFoundException;
 import com.openclassrooms.mddapi.models.User;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -62,9 +66,7 @@ public class AuthController {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             registerRequest.getEmail(),
-                            registerRequest.getPassword()
-                    )
-            );
+                            registerRequest.getPassword()));
             logger.info("Authentication successful for registered user: {}", registerRequest.getEmail());
         } catch (Exception e) {
             logger.error("Authentication failed for user {} after registration: ", registerRequest.getEmail(), e);
@@ -97,9 +99,7 @@ public class AuthController {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmailOrUsername(),
-                            loginRequest.getPassword()
-                    )
-            );
+                            loginRequest.getPassword()));
             logger.info("Authentication successful for user: {}", loginRequest.getEmailOrUsername());
         } catch (Exception e) {
             logger.error("Authentication failed for user {}: ", loginRequest.getEmailOrUsername(), e);
@@ -117,7 +117,8 @@ public class AuthController {
         }
 
         User user = userRepository.findByEmail(loginRequest.getEmailOrUsername())
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + loginRequest.getEmailOrUsername()));
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with email: " + loginRequest.getEmailOrUsername()));
 
         return AuthResponse.builder()
                 .token(jwt)
@@ -125,5 +126,15 @@ public class AuthController {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+            logger.info("User {} logged out successfully.", auth.getName());
+        }
+        return ResponseEntity.ok("Logout successful");
     }
 }
