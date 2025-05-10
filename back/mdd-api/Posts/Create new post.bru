@@ -1,0 +1,27 @@
+meta {
+  name: Create new post
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3001/api/posts
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ2OTExNjQ1LCJleHAiOjE3NDY5OTgwNDV9.E1EbnW6LPv-ncMdFYk-xklG5STQJw0Z2YNj9sO9k3gQskcXvwHOozmvEpqwjBnCVbvEci5ATbu91J4kuyLHaNg
+}
+
+body:json {
+  {
+    "title": "Getting Started with Spring Boot",
+    "content": "Spring Boot makes it easy to create stand-alone, production-grade Spring based Applications that you can 'just run'.",
+    "topicId": 1
+  }
+}

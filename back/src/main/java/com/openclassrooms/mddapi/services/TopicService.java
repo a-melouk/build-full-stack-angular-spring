@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface TopicService {
     List<TopicDto> findAll();
+
+    TopicDto findById(Long id);
 }
