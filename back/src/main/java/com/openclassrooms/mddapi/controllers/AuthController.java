@@ -127,14 +127,4 @@ public class AuthController {
                 .lastName(user.getLastName())
                 .build();
     }
-
-    @PostMapping("/logout")
-    public ResponseEntity<String> logoutUser(HttpServletRequest request, HttpServletResponse response) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-            logger.info("User {} logged out successfully.", auth.getName());
-        }
-        return ResponseEntity.ok("Logout successful");
-    }
 }
