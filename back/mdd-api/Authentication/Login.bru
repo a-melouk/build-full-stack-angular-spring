@@ -7,16 +7,20 @@ meta {
 post {
   url: http://localhost:3001/api/auth/login
   body: json
-  auth: inherit
+  auth: bearer
 }
 
 headers {
   Content-Type: application/json
 }
 
+auth:bearer {
+  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ3OTUyMzQyLCJleHAiOjE3NDgwMzg3NDJ9.z2LKdGmlK6g_CKuxtrHaeuNFpu4CBNbsonCoFY8bV1Gm5WpZatgdGBwOTa1A6D1cOtox-e27ZdcQtDl4QcY8Rw
+}
+
 body:json {
   {
     "emailOrUsername": "test@example.com",
-    "password": "NewPassword1!"
+    "password": "Test123!@#"
   }
 }
