@@ -62,6 +62,13 @@ export class AuthService {
       );
   }
 
+  logout(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('tokenType');
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/auth/login']);
+  }
+
   private setSession(authResponse: AuthResponse): void {
     localStorage.setItem('accessToken', authResponse.token);
     localStorage.setItem('tokenType', 'Bearer');
