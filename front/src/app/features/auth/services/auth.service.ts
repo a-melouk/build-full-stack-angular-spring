@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
+import { CookieService } from './cookie.service';
 
 export interface LoginRequest {
   emailOrUsername: string;
@@ -10,6 +11,7 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   password: string;
@@ -18,6 +20,7 @@ export interface RegisterRequest {
 export interface AuthResponse {
   token: string;
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
 }
@@ -25,6 +28,7 @@ export interface AuthResponse {
 export interface User {
   id: number;
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   createdAt?: string;
@@ -37,12 +41,16 @@ export interface User {
 export class AuthService {
   private readonly API_URL = 'http://localhost:3001/api/auth';
   private readonly USER_API_URL = 'http://localhost:3001/api/me';
+  private readonly ACCESS_TOKEN_NAME = 'accessToken';
+  private readonly TOKEN_TYPE_NAME = 'tokenType';
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private cookieService: CookieService
   ) {
     this.loadUserFromStorage();
   }
@@ -66,19 +74,21 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('tokenType');
+    this.cookieService.deleteCookie(this.ACCESS_TOKEN_NAME);
+    this.cookieService.deleteCookie(this.TOKEN_TYPE_NAME);
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
 
   private setSession(authResponse: AuthResponse): void {
-    localStorage.setItem('accessToken', authResponse.token);
-    localStorage.setItem('tokenType', 'Bearer');
+    // Store tokens in secure cookies instead of localStorage
+    this.cookieService.setSecureCookie(this.ACCESS_TOKEN_NAME, authResponse.token, 7);
+    this.cookieService.setSecureCookie(this.TOKEN_TYPE_NAME, 'Bearer', 7);
 
     const user: User = {
       id: 0,
       email: authResponse.email,
+      username: authResponse.username,
       firstName: authResponse.firstName,
       lastName: authResponse.lastName
     };
@@ -96,12 +106,13 @@ export class AuthService {
   }
 
   private loadUserFromStorage(): void {
-    const token = localStorage.getItem('accessToken');
+    const token = this.cookieService.getCookie(this.ACCESS_TOKEN_NAME);
 
     if (token) {
       const tempUser: User = {
         id: 0,
         email: '',
+        username: '',
         firstName: '',
         lastName: ''
       };
@@ -136,11 +147,11 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('accessToken');
+    const token = this.cookieService.getCookie(this.ACCESS_TOKEN_NAME);
     return !!token;
   }
 
   getToken(): string | null {
-    return localStorage.getItem('accessToken');
+    return this.cookieService.getCookie(this.ACCESS_TOKEN_NAME);
   }
 }

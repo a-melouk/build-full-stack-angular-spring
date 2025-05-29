@@ -3,10 +3,14 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { CookieService } from '../services/cookie.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private cookieService: CookieService
+  ) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
@@ -18,18 +22,24 @@ export class ErrorInterceptor implements HttpInterceptor {
             errorMessage = 'Bad Request - ' + (error.error?.message || 'Invalid request');
             break;
           case 401:
-            errorMessage = 'Unauthorized - Please login again';
-            this.handleAuthError();
-            break;
           case 403:
-            // Check if this is an authentication issue (invalid token) vs authorization issue
-            const errorMsg = error.error?.message || '';
-            if (errorMsg.toLowerCase().includes('token') || errorMsg.toLowerCase().includes('jwt') || errorMsg.toLowerCase().includes('unauthorized')) {
-              errorMessage = 'Session expired - Please login again';
-              this.handleAuthError();
+            // Handle both authentication (401) and authorization (403) errors
+            if (error.status === 401) {
+              errorMessage = 'Unauthorized - Please login again';
             } else {
-              errorMessage = 'Forbidden - You don\'t have permission to access this resource';
+              // Check if this is an authentication issue (invalid/expired token) or authorization issue
+              const authHeader = request.headers.get('Authorization');
+              if (authHeader && authHeader.startsWith('Bearer ')) {
+                errorMessage = 'Session expired - Please login again';
+              } else {
+                errorMessage = 'Forbidden - You don\'t have permission to access this resource';
+              }
             }
+
+            // Clear cookies and redirect to login for auth errors
+            this.cookieService.deleteCookie('accessToken');
+            this.cookieService.deleteCookie('tokenType');
+            this.router.navigate(['/auth/login']);
             break;
           case 404:
             errorMessage = 'Not Found - The requested resource was not found';
@@ -45,11 +55,5 @@ export class ErrorInterceptor implements HttpInterceptor {
         return throwError(() => new Error(errorMessage));
       })
     );
-  }
-
-  private handleAuthError(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('tokenType');
-    this.router.navigate(['/auth/login']);
   }
 }

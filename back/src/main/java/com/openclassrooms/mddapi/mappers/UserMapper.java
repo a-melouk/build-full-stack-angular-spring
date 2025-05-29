@@ -14,6 +14,7 @@ public class UserMapper {
     return UserDto.builder()
         .id(user.getId())
         .email(user.getEmail())
+        .username(user.getUsernameField())
         .firstName(user.getFirstName())
         .lastName(user.getLastName())
         .createdAt(user.getCreatedAt())

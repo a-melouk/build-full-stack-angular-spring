@@ -19,10 +19,20 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), this.usernameValidator]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]]
     });
+  }
+
+  usernameValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+
+    // Username can only contain alphanumeric characters and underscores
+    const validUsername = /^[a-zA-Z0-9_]+$/.test(value);
+    return !validUsername ? { invalidUsername: true } : null;
   }
 
   passwordValidator(control: AbstractControl): ValidationErrors | null {

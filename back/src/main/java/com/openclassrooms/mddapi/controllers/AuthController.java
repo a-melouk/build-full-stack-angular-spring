@@ -49,10 +49,15 @@ public class AuthController {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new EmailAlreadyExistsException("Email is already taken!");
         }
-        logger.info("Attempting to register user with email: {}", registerRequest.getEmail());
+        if (userRepository.existsByUsername(registerRequest.getUsername())) {
+            throw new EmailAlreadyExistsException("Username is already taken!");
+        }
+        logger.info("Attempting to register user with email: {} and username: {}",
+                registerRequest.getEmail(), registerRequest.getUsername());
 
         User user = User.builder()
                 .email(registerRequest.getEmail())
+                .username(registerRequest.getUsername())
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
@@ -86,6 +91,7 @@ public class AuthController {
         return AuthResponse.builder()
                 .token(jwt)
                 .email(user.getEmail())
+                .username(user.getUsernameField())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .build();
@@ -116,13 +122,14 @@ public class AuthController {
             throw e; // Re-throw
         }
 
-        User user = userRepository.findByEmail(loginRequest.getEmailOrUsername())
+        User user = userRepository.findByEmailOrUsername(loginRequest.getEmailOrUsername())
                 .orElseThrow(() -> new UserNotFoundException(
-                        "User not found with email: " + loginRequest.getEmailOrUsername()));
+                        "User not found with email or username: " + loginRequest.getEmailOrUsername()));
 
         return AuthResponse.builder()
                 .token(jwt)
                 .email(user.getEmail())
+                .username(user.getUsernameField())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .build();

@@ -18,7 +18,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "USERS", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
+        @UniqueConstraint(columnNames = "email"),
+        @UniqueConstraint(columnNames = "username")
 })
 @Data
 @Accessors(chain = true)
@@ -38,6 +39,11 @@ public class User implements UserDetails {
     @Size(max = 50)
     @Email
     private String email;
+
+    @NonNull
+    @Size(min = 3, max = 20)
+    @Column(unique = true)
+    private String username;
 
     @NonNull
     @Size(max = 20)
@@ -85,7 +91,16 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
+        // For Spring Security authentication, we use email as the username
         return email;
+    }
+
+    /**
+     * Get the actual username field (not the Spring Security username which is
+     * email)
+     */
+    public String getUsernameField() {
+        return username;
     }
 
     @Override

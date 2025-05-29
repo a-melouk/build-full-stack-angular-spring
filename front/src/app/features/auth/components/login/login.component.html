@@ -9,11 +9,16 @@
         <mat-form-field appearance="outline">
           <mat-label>Email or Username</mat-label>
           <input matInput formControlName="emailOrUsername" type="text" />
+          <mat-error *ngIf="loginForm.get('emailOrUsername')?.hasError('required')">Email or username is
+            required</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <input matInput formControlName="password" type="password" />
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">Password is required</mat-error>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">Password must be at least 8
+            characters</mat-error>
         </mat-form-field>
 
         <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
@@ -21,6 +26,10 @@
         <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
           Login
         </button>
+
+        <div class="auth-links">
+          <p>Don't have an account? <a routerLink="/auth/register">Register here</a></p>
+        </div>
       </form>
     </mat-card-content>
   </mat-card>
