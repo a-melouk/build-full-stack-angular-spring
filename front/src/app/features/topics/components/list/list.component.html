@@ -1,5 +1,17 @@
 <div class="topics-container">
-  <ng-container *ngIf="topics$ | async as topics; else loadingOrError">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading topics...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && error" class="error-state">
+    <p class="error-message">{{ error }}</p>
+    <button (click)="ngOnInit()" class="retry-button">Retry</button>
+  </div>
+
+  <!-- Content state -->
+  <div *ngIf="!loading && !error" class="content-state">
     <div *ngIf="topics.length > 0; else noTopics" class="topics-grid">
       <div *ngFor="let topic of topics" class="topic-card">
         <h2>{{ topic.name }}</h2>
@@ -9,14 +21,9 @@
         <!-- <button class="unsubscribe-button" disabled>Déjà abonné</button> -->
       </div>
     </div>
-  </ng-container>
 
-  <ng-template #loadingOrError>
-    <!-- Add better loading/error state later -->
-    <p>Loading topics...</p>
-  </ng-template>
-
-  <ng-template #noTopics>
-    <p>No topics available.</p>
-  </ng-template>
+    <ng-template #noTopics>
+      <p>No topics available.</p>
+    </ng-template>
+  </div>
 </div>
