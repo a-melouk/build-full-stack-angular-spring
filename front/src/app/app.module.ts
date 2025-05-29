@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './pages/home/home.component';
 import { RedirectComponent } from './components/redirect/redirect.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 import { AuthInterceptor } from './features/auth/interceptors/auth.interceptor';
 import { ErrorInterceptor } from './features/auth/interceptors/error.interceptor';
 
@@ -14,7 +15,8 @@ import { ErrorInterceptor } from './features/auth/interceptors/error.interceptor
   declarations: [
     AppComponent,
     HomeComponent,
-    RedirectComponent
+    RedirectComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

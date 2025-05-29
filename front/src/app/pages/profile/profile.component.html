@@ -1,0 +1,38 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <h2>My Profile</h2>
+
+    <div *ngIf="isLoading" class="loading">Loading user data...</div>
+
+    <div class="user-info" *ngIf="currentUser$ | async as user">
+      <div class="info-group">
+        <label>Email:</label>
+        <span>{{ user.email || 'Not available' }}</span>
+      </div>
+
+      <div class="info-group">
+        <label>First Name:</label>
+        <span>{{ user.firstName || 'Not available' }}</span>
+      </div>
+
+      <div class="info-group">
+        <label>Last Name:</label>
+        <span>{{ user.lastName || 'Not available' }}</span>
+      </div>
+
+      <div class="info-group">
+        <label>User ID:</label>
+        <span>{{ user.id || 'Not available' }}</span>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button type="button" (click)="refreshUserData()" class="btn-primary" [disabled]="isLoading">
+        {{ isLoading ? 'Refreshing...' : 'Refresh Data' }}
+      </button>
+      <button type="button" (click)="logout()" class="btn-secondary">
+        Logout
+      </button>
+    </div>
+  </div>
+</div>

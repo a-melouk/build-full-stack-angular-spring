@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
 
 export interface LoginRequest {
@@ -36,13 +36,16 @@ export interface User {
 })
 export class AuthService {
   private readonly API_URL = 'http://localhost:3001/api/auth';
+  private readonly USER_API_URL = 'http://localhost:3001/api/me';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
     private http: HttpClient,
     private router: Router
-  ) { }
+  ) {
+    this.loadUserFromStorage();
+  }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
@@ -80,6 +83,56 @@ export class AuthService {
       lastName: authResponse.lastName
     };
     this.currentUserSubject.next(user);
+
+    // Fetch complete user data from backend
+    this.getCurrentUser().subscribe({
+      next: (fullUser) => {
+        this.currentUserSubject.next(fullUser);
+      },
+      error: () => {
+        // Keep the user from auth response if backend call fails
+      }
+    });
+  }
+
+  private loadUserFromStorage(): void {
+    const token = localStorage.getItem('accessToken');
+
+    if (token) {
+      const tempUser: User = {
+        id: 0,
+        email: '',
+        firstName: '',
+        lastName: ''
+      };
+      this.currentUserSubject.next(tempUser);
+
+      this.getCurrentUser().subscribe({
+        next: (user) => {
+          this.currentUserSubject.next(user);
+        },
+        error: (error) => {
+          if (error.status === 401) {
+            this.logout();
+          }
+        }
+      });
+    }
+  }
+
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(this.USER_API_URL);
+  }
+
+  refreshUserData(): Observable<User> {
+    return this.getCurrentUser().pipe(
+      tap(user => {
+        this.currentUserSubject.next(user);
+      }),
+      catchError(error => {
+        return of(null as any);
+      })
+    );
   }
 
   isAuthenticated(): boolean {
