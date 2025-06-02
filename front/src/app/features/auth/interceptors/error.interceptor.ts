@@ -3,13 +3,11 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { CookieService } from '../services/cookie.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   constructor(
-    private router: Router,
-    private cookieService: CookieService
+    private router: Router
   ) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -27,18 +25,10 @@ export class ErrorInterceptor implements HttpInterceptor {
             if (error.status === 401) {
               errorMessage = 'Unauthorized - Please login again';
             } else {
-              // Check if this is an authentication issue (invalid/expired token) or authorization issue
-              const authHeader = request.headers.get('Authorization');
-              if (authHeader && authHeader.startsWith('Bearer ')) {
-                errorMessage = 'Session expired - Please login again';
-              } else {
-                errorMessage = 'Forbidden - You don\'t have permission to access this resource';
-              }
+              errorMessage = 'Forbidden - You don\'t have permission to access this resource';
             }
 
-            // Clear cookies and redirect to login for auth errors
-            this.cookieService.deleteCookie('accessToken');
-            this.cookieService.deleteCookie('tokenType');
+            // The backend should handle cookie clearing via the logout endpoint
             this.router.navigate(['/auth/login']);
             break;
           case 404:

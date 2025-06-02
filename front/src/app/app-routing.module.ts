@@ -3,10 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { RedirectComponent } from './components/redirect/redirect.component';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { AuthGuard } from './features/auth/guards/auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 
-// consider a guard combined with canLoad / canActivate route option
-// to manage unauthenticated user to access private routes
 const routes: Routes = [
   { path: '', component: HomeComponent },
   {

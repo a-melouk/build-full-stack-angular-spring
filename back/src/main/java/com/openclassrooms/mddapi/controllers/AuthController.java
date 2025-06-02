@@ -8,6 +8,7 @@ import com.openclassrooms.mddapi.exception.UserNotFoundException;
 import com.openclassrooms.mddapi.models.User;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.JwtTokenProvider;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -45,7 +46,8 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthResponse registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public AuthResponse registerUser(@Valid @RequestBody RegisterRequest registerRequest,
+            HttpServletResponse response) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new EmailAlreadyExistsException("Email is already taken!");
         }
@@ -88,8 +90,10 @@ public class AuthController {
             throw e; // Re-throw
         }
 
+        // Set secure HTTP-only cookies
+        setAuthCookies(response, jwt);
+
         return AuthResponse.builder()
-                .token(jwt)
                 .email(user.getEmail())
                 .username(user.getUsernameField())
                 .firstName(user.getFirstName())
@@ -98,7 +102,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public AuthResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         logger.info("Attempting to authenticate user: {}", loginRequest.getEmailOrUsername());
         Authentication authentication;
         try {
@@ -126,12 +130,68 @@ public class AuthController {
                 .orElseThrow(() -> new UserNotFoundException(
                         "User not found with email or username: " + loginRequest.getEmailOrUsername()));
 
+        // Set secure HTTP-only cookies
+        setAuthCookies(response, jwt);
+
         return AuthResponse.builder()
-                .token(jwt)
                 .email(user.getEmail())
                 .username(user.getUsernameField())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        // Clear authentication cookies
+        clearAuthCookies(response);
+
+        // Clear security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void setAuthCookies(HttpServletResponse response, String jwt) {
+        // Set access token cookie
+        Cookie accessTokenCookie = new Cookie("accessToken", jwt);
+        accessTokenCookie.setHttpOnly(true); // Prevent XSS
+        accessTokenCookie.setSecure(false); // Set to true in production with HTTPS
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(24 * 60 * 60); // 24 hours
+        accessTokenCookie.setAttribute("SameSite", "Lax"); // CSRF protection
+
+        // Set token type cookie
+        Cookie tokenTypeCookie = new Cookie("tokenType", "Bearer");
+        tokenTypeCookie.setHttpOnly(true);
+        tokenTypeCookie.setSecure(false); // Set to true in production with HTTPS
+        tokenTypeCookie.setPath("/");
+        tokenTypeCookie.setMaxAge(24 * 60 * 60); // 24 hours
+        tokenTypeCookie.setAttribute("SameSite", "Lax");
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(tokenTypeCookie);
+    }
+
+    private void clearAuthCookies(HttpServletResponse response) {
+        // Clear access token cookie
+        Cookie accessTokenCookie = new Cookie("accessToken", "");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(false); // Set to true in production
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(0); // Expire immediately
+
+        // Clear token type cookie
+        Cookie tokenTypeCookie = new Cookie("tokenType", "");
+        tokenTypeCookie.setHttpOnly(true);
+        tokenTypeCookie.setSecure(false); // Set to true in production
+        tokenTypeCookie.setPath("/");
+        tokenTypeCookie.setMaxAge(0); // Expire immediately
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(tokenTypeCookie);
     }
 }

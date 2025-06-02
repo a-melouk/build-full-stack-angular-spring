@@ -7,20 +7,16 @@ meta {
 post {
   url: http://localhost:3001/api/comments
   body: json
-  auth: bearer
+  auth: none
 }
 
 headers {
   Content-Type: application/json
 }
 
-auth:bearer {
-  token: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzQ3OTUyNDAxLCJleHAiOjE3NDgwMzg4MDF9.N-DP5zWSUvfej2JDTiHN0_0ZQ4wg_C3LLX6uKlT-5k7BMLLyxgAxyoFoVtiRvRC0lkht1sfpKC1qN3qwOFOArQ"
-}
-
 body:json {
   {
     "content": "This is a comment to to test the endpoint",
-    "postId": 1
+    "postId": 3
   }
 }

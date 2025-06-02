@@ -2,61 +2,30 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
-import { CookieService } from './cookie.service';
-
-export interface LoginRequest {
-  emailOrUsername: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface User {
-  id: number;
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { User } from '../interfaces/user.interafce';
+import { AuthResponse } from '../interfaces/response/authresponse.interface.ts';
+import { LoginRequest } from '../interfaces/request/loginrequest.interface';
+import { RegisterRequest } from '../interfaces/request/registerrequest.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:3001/api/auth';
-  private readonly USER_API_URL = 'http://localhost:3001/api/me';
-  private readonly ACCESS_TOKEN_NAME = 'accessToken';
-  private readonly TOKEN_TYPE_NAME = 'tokenType';
+  private readonly API_URL = 'api/auth';
+  private readonly USER_API_URL = 'api/me';
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
     private http: HttpClient,
-    private router: Router,
-    private cookieService: CookieService
+    private router: Router
   ) {
     this.loadUserFromStorage();
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
+    return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials, { withCredentials: true })
       .pipe(
         tap(response => {
           this.setSession(response);
@@ -65,7 +34,7 @@ export class AuthService {
   }
 
   register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/register`, userData)
+    return this.http.post<AuthResponse>(`${this.API_URL}/register`, userData, { withCredentials: true })
       .pipe(
         tap(response => {
           this.setSession(response);
@@ -74,17 +43,22 @@ export class AuthService {
   }
 
   logout(): void {
-    this.cookieService.deleteCookie(this.ACCESS_TOKEN_NAME);
-    this.cookieService.deleteCookie(this.TOKEN_TYPE_NAME);
-    this.currentUserSubject.next(null);
-    this.router.navigate(['/auth/login']);
+    // Call backend logout endpoint to clear cookies
+    this.http.post(`${this.API_URL}/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => {
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/auth/login']);
+      },
+      error: () => {
+        // Even if backend call fails, clear local state
+        this.currentUserSubject.next(null);
+        this.router.navigate(['/auth/login']);
+      }
+    });
   }
 
   private setSession(authResponse: AuthResponse): void {
-    // Store tokens in secure cookies instead of localStorage
-    this.cookieService.setSecureCookie(this.ACCESS_TOKEN_NAME, authResponse.token, 7);
-    this.cookieService.setSecureCookie(this.TOKEN_TYPE_NAME, 'Bearer', 7);
-
+    // Since the backend sets HTTP-only cookies, we only need to handle user data
     const user: User = {
       id: 0,
       email: authResponse.email,
@@ -106,33 +80,22 @@ export class AuthService {
   }
 
   private loadUserFromStorage(): void {
-    const token = this.cookieService.getCookie(this.ACCESS_TOKEN_NAME);
-
-    if (token) {
-      const tempUser: User = {
-        id: 0,
-        email: '',
-        username: '',
-        firstName: '',
-        lastName: ''
-      };
-      this.currentUserSubject.next(tempUser);
-
-      this.getCurrentUser().subscribe({
-        next: (user) => {
-          this.currentUserSubject.next(user);
-        },
-        error: (error) => {
-          if (error.status === 401) {
-            this.logout();
-          }
+    // Try to get current user data from backend
+    // If HTTP-only cookies exist, this will succeed
+    this.getCurrentUser().subscribe({
+      next: (user) => {
+        this.currentUserSubject.next(user);
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.currentUserSubject.next(null);
         }
-      });
-    }
+      }
+    });
   }
 
   getCurrentUser(): Observable<User> {
-    return this.http.get<User>(this.USER_API_URL);
+    return this.http.get<User>(this.USER_API_URL, { withCredentials: true });
   }
 
   refreshUserData(): Observable<User> {
@@ -147,11 +110,8 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = this.cookieService.getCookie(this.ACCESS_TOKEN_NAME);
-    return !!token;
-  }
-
-  getToken(): string | null {
-    return this.cookieService.getCookie(this.ACCESS_TOKEN_NAME);
+    // Since we can't access HTTP-only cookies from JavaScript,
+    // we check if we have a current user
+    return this.currentUserSubject.value !== null;
   }
 }

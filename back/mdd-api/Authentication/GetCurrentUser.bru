@@ -1,7 +1,7 @@
 meta {
-  name: Me
+  name: Get Current User (Protected)
   type: http
-  seq: 1
+  seq: 3
 }
 
 get {
@@ -12,11 +12,4 @@ get {
 
 headers {
   Content-Type: application/json
-}
-
-body:json {
-  {
-    "emailOrUsername": "test@example.com",
-    "password": "Test123!@#"
-  }
 }
