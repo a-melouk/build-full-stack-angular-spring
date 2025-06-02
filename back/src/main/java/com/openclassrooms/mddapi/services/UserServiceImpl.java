@@ -53,12 +53,6 @@ public class UserServiceImpl implements UserService {
       }
       currentUser.setEmail(updateUserDto.getEmail());
     }
-    if (StringUtils.hasText(updateUserDto.getFirstName())) {
-      currentUser.setFirstName(updateUserDto.getFirstName());
-    }
-    if (StringUtils.hasText(updateUserDto.getLastName())) {
-      currentUser.setLastName(updateUserDto.getLastName());
-    }
 
     User updatedUser = userRepository.save(currentUser);
     return userMapper.toDto(updatedUser);

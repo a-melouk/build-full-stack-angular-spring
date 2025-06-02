@@ -78,7 +78,6 @@ public class PostServiceImpl implements PostService {
                                 .title(post.getTitle())
                                 .content(post.getContent())
                                 .createdAt(post.getCreatedAt())
-                                .authorName(post.getUser().getFirstName() + " " + post.getUser().getLastName())
                                 .topicId(post.getTopic().getId())
                                 .topicName(post.getTopic().getName())
                                 .comments(post.getComments() != null
@@ -93,7 +92,6 @@ public class PostServiceImpl implements PostService {
                                 .id(comment.getId())
                                 .content(comment.getContent())
                                 .createdAt(comment.getCreatedAt())
-                                .authorName(comment.getUser().getFirstName() + " " + comment.getUser().getLastName())
                                 .build();
         }
 }

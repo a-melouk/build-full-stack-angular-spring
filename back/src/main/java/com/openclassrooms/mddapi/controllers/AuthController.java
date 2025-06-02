@@ -60,8 +60,6 @@ public class AuthController {
         User user = User.builder()
                 .email(registerRequest.getEmail())
                 .username(registerRequest.getUsername())
-                .firstName(registerRequest.getFirstName())
-                .lastName(registerRequest.getLastName())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
 
@@ -96,8 +94,6 @@ public class AuthController {
         return AuthResponse.builder()
                 .email(user.getEmail())
                 .username(user.getUsernameField())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
                 .build();
     }
 
@@ -136,8 +132,6 @@ public class AuthController {
         return AuthResponse.builder()
                 .email(user.getEmail())
                 .username(user.getUsernameField())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
                 .build();
     }
 

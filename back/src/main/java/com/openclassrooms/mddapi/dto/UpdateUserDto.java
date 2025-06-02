@@ -19,11 +19,4 @@ public class UpdateUserDto {
   @Size(max = 50, message = "Email must be at most 50 characters")
   private String email;
 
-  @NotBlank(message = "First name cannot be blank")
-  @Size(max = 20, message = "First name must be at most 20 characters")
-  private String firstName;
-
-  @NotBlank(message = "Last name cannot be blank")
-  @Size(max = 20, message = "Last name must be at most 20 characters")
-  private String lastName;
 }

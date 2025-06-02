@@ -62,9 +62,7 @@ export class AuthService {
     const user: User = {
       id: 0,
       email: authResponse.email,
-      username: authResponse.username,
-      firstName: authResponse.firstName,
-      lastName: authResponse.lastName
+      username: authResponse.username
     };
     this.currentUserSubject.next(user);
 
