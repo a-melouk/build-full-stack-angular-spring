@@ -20,11 +20,11 @@ export class SubscriptionService {
   constructor(private httpClient: HttpClient) { }
 
   public subscribe(topicId: number): Observable<string> {
-    return this.httpClient.post<string>(`${this.pathService}/subscribe/${topicId}`, {});
+    return this.httpClient.post(`${this.pathService}/subscribe/${topicId}`, {}, { responseType: 'text' });
   }
 
   public unsubscribe(topicId: number): Observable<string> {
-    return this.httpClient.delete<string>(`${this.pathService}/unsubscribe/${topicId}`);
+    return this.httpClient.delete(`${this.pathService}/unsubscribe/${topicId}`, { responseType: 'text' });
   }
 
   public getUserSubscriptions(): Observable<SubscriptionDto[]> {

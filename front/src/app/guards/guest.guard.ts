@@ -16,7 +16,9 @@ export class GuestGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-    if (!this.authService.isAuthenticated()) {
+    const isAuthenticated = this.authService.isAuthenticated();
+
+    if (!isAuthenticated) {
       return true;
     }
 

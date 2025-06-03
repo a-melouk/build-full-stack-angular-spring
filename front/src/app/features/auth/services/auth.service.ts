@@ -17,6 +17,9 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
+  private isUserLoadedSubject = new BehaviorSubject<boolean>(false);
+  public isUserLoaded$ = this.isUserLoadedSubject.asObservable();
+
   constructor(
     private http: HttpClient,
     private router: Router
@@ -80,14 +83,17 @@ export class AuthService {
   private loadUserFromStorage(): void {
     // Try to get current user data from backend
     // If HTTP-only cookies exist, this will succeed
+    this.isUserLoadedSubject.next(false);
     this.getCurrentUser().subscribe({
       next: (user) => {
         this.currentUserSubject.next(user);
+        this.isUserLoadedSubject.next(true);
       },
       error: (error) => {
         if (error.status === 401) {
           this.currentUserSubject.next(null);
         }
+        this.isUserLoadedSubject.next(true);
       }
     });
   }
@@ -108,8 +114,8 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    // Since we can't access HTTP-only cookies from JavaScript,
-    // we check if we have a current user
-    return this.currentUserSubject.value !== null;
+    const user = this.currentUserSubject.value;
+    const authenticated = user !== null;
+    return authenticated;
   }
 }

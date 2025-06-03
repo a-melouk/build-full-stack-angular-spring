@@ -90,6 +90,10 @@ export class ListComponent implements OnInit {
         return of(null);
       })
     ).subscribe({
+      next: () => {
+      },
+      error: () => {
+      },
       complete: () => {
         this.subscribingTopics[topicId] = false;
       }
