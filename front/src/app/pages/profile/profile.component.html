@@ -1,0 +1,65 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <h2>My Profile</h2>
+
+    <div *ngIf="isLoading" class="loading">Loading user data...</div>
+
+    <div class="user-info" *ngIf="currentUser$ | async as user">
+      <div class="info-group">
+        <label>Email:</label>
+        <span>{{ user.email || 'Not available' }}</span>
+      </div>
+
+      <div class="info-group">
+        <label>Username:</label>
+        <span>{{ user.username || 'Not available' }}</span>
+      </div>
+
+      <div class="info-group">
+        <label>User ID:</label>
+        <span>{{ user.id || 'Not available' }}</span>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button type="button" (click)="refreshUserData()" class="btn-primary" [disabled]="isLoading">
+        {{ isLoading ? 'Refreshing...' : 'Refresh Data' }}
+      </button>
+      <button type="button" (click)="logout()" class="btn-secondary">
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- Subscriptions Section -->
+  <div class="subscriptions-card">
+    <h2>My Subscriptions</h2>
+
+    <div *ngIf="subscriptionsLoading" class="loading">Loading subscriptions...</div>
+
+    <div *ngIf="!subscriptionsLoading && subscriptionsError" class="error-state">
+      <p class="error-message">{{ subscriptionsError }}</p>
+      <button (click)="loadUserSubscriptions()" class="retry-button">Retry</button>
+    </div>
+
+    <div *ngIf="!subscriptionsLoading && !subscriptionsError" class="subscriptions-content">
+      <div *ngIf="subscriptions.length > 0; else noSubscriptions" class="subscriptions-grid">
+        <div *ngFor="let subscription of subscriptions" class="subscription-card">
+          <h3>{{ subscription.topicName }}</h3>
+          <p>{{ subscription.topicDescription }}</p>
+          <div class="subscription-meta">
+            <small>Subscribed on: {{ subscription.subscribedAt | date:'short' }}</small>
+          </div>
+          <button class="unsubscribe-button" [disabled]="isUnsubscribing(subscription.topicId)"
+            (click)="onUnsubscribe(subscription.topicId)">
+            {{ isUnsubscribing(subscription.topicId) ? 'Unsubscribing...' : 'Se désabonner' }}
+          </button>
+        </div>
+      </div>
+
+      <ng-template #noSubscriptions>
+        <p class="no-subscriptions">You are not subscribed to any topics yet.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

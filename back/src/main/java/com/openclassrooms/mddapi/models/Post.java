@@ -17,12 +17,13 @@ import java.util.List;
 @Table(name = "POSTS")
 @Data
 @Accessors(chain = true)
-@EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(of = {"id"})
 @Builder
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+
 @ToString(exclude = {"comments"})
 public class Post {
     @Id
@@ -40,7 +41,7 @@ public class Post {
     private String content;
 
     @CreatedDate
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
