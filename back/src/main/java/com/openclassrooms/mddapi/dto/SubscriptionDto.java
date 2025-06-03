@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDto {
+public class SubscriptionDto {
     private Long id;
-    private String content;
-    private LocalDateTime createdAt;
-    private String username;
+    private Long userId;
+    private Long topicId;
+    private String topicName;
+    private String topicDescription;
+    private LocalDateTime subscribedAt;
 }

@@ -30,4 +30,36 @@
       </button>
     </div>
   </div>
+
+  <!-- Subscriptions Section -->
+  <div class="subscriptions-card">
+    <h2>My Subscriptions</h2>
+
+    <div *ngIf="subscriptionsLoading" class="loading">Loading subscriptions...</div>
+
+    <div *ngIf="!subscriptionsLoading && subscriptionsError" class="error-state">
+      <p class="error-message">{{ subscriptionsError }}</p>
+      <button (click)="loadUserSubscriptions()" class="retry-button">Retry</button>
+    </div>
+
+    <div *ngIf="!subscriptionsLoading && !subscriptionsError" class="subscriptions-content">
+      <div *ngIf="subscriptions.length > 0; else noSubscriptions" class="subscriptions-grid">
+        <div *ngFor="let subscription of subscriptions" class="subscription-card">
+          <h3>{{ subscription.topicName }}</h3>
+          <p>{{ subscription.topicDescription }}</p>
+          <div class="subscription-meta">
+            <small>Subscribed on: {{ subscription.subscribedAt | date:'short' }}</small>
+          </div>
+          <button class="unsubscribe-button" [disabled]="isUnsubscribing(subscription.topicId)"
+            (click)="onUnsubscribe(subscription.topicId)">
+            {{ isUnsubscribing(subscription.topicId) ? 'Unsubscribing...' : 'Se désabonner' }}
+          </button>
+        </div>
+      </div>
+
+      <ng-template #noSubscriptions>
+        <p class="no-subscriptions">You are not subscribed to any topics yet.</p>
+      </ng-template>
+    </div>
+  </div>
 </div>

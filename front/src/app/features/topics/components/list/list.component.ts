@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TopicService } from '../../services/topic.service';
+import { SubscriptionService } from '../../services/subscription.service';
 import { Topic } from '../../interfaces/topic.interface';
-import { Observable, EMPTY, catchError, tap, of } from 'rxjs';
+import { Observable, EMPTY, catchError, tap, of, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-list',
@@ -12,8 +13,13 @@ export class ListComponent implements OnInit {
   public topics: Topic[] = [];
   public loading = true;
   public error = '';
+  public subscriptionStatus: { [topicId: number]: boolean } = {};
+  public subscribingTopics: { [topicId: number]: boolean } = {};
 
-  constructor(private topicService: TopicService) { }
+  constructor(
+    private topicService: TopicService,
+    private subscriptionService: SubscriptionService
+  ) { }
 
   ngOnInit(): void {
     this.loading = true;
@@ -23,8 +29,7 @@ export class ListComponent implements OnInit {
       tap(data => {
         console.log('Topics received:', data);
         this.topics = data;
-        this.loading = false;
-        this.error = '';
+        this.loadSubscriptionStatuses();
       }),
       catchError(error => {
         console.error('Error fetching topics:', error);
@@ -41,5 +46,61 @@ export class ListComponent implements OnInit {
         return of([]); // Return empty array for non-auth errors
       })
     ).subscribe(); // Subscribe immediately!
+  }
+
+  private loadSubscriptionStatuses(): void {
+    if (this.topics.length === 0) {
+      this.loading = false;
+      return;
+    }
+
+    const subscriptionChecks = this.topics.map(topic =>
+      this.subscriptionService.checkSubscription(topic.id).pipe(
+        tap(isSubscribed => {
+          this.subscriptionStatus[topic.id] = isSubscribed;
+        }),
+        catchError(error => {
+          console.error(`Error checking subscription for topic ${topic.id}:`, error);
+          this.subscriptionStatus[topic.id] = false;
+          return of(false);
+        })
+      )
+    );
+
+    forkJoin(subscriptionChecks).subscribe({
+      next: () => {
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  public onSubscribe(topicId: number): void {
+    this.subscribingTopics[topicId] = true;
+
+    this.subscriptionService.subscribe(topicId).pipe(
+      tap(message => {
+        this.subscriptionStatus[topicId] = true;
+        console.log(message);
+      }),
+      catchError(error => {
+        console.error('Error subscribing to topic:', error);
+        return of(null);
+      })
+    ).subscribe({
+      complete: () => {
+        this.subscribingTopics[topicId] = false;
+      }
+    });
+  }
+
+  public isSubscribed(topicId: number): boolean {
+    return this.subscriptionStatus[topicId] || false;
+  }
+
+  public isSubscribing(topicId: number): boolean {
+    return this.subscribingTopics[topicId] || false;
   }
 }

@@ -16,9 +16,17 @@
       <div *ngFor="let topic of topics" class="topic-card">
         <h2>{{ topic.name }}</h2>
         <p>{{ topic.description }}</p>
-        <!-- Button state logic will be added later -->
-        <button class="subscribe-button">S'abonner</button>
-        <!-- <button class="unsubscribe-button" disabled>Déjà abonné</button> -->
+
+        <!-- Subscribe button - shown when not subscribed -->
+        <button *ngIf="!isSubscribed(topic.id)" class="subscribe-button" [disabled]="isSubscribing(topic.id)"
+          (click)="onSubscribe(topic.id)">
+          {{ isSubscribing(topic.id) ? 'Subscribing...' : 'S\'abonner' }}
+        </button>
+
+        <!-- Already subscribed button - shown when subscribed -->
+        <button *ngIf="isSubscribed(topic.id)" class="subscribed-button" disabled>
+          Déjà abonné
+        </button>
       </div>
     </div>
 
