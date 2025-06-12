@@ -13,6 +13,7 @@ import { RegisterRequest } from '../interfaces/request/registerrequest.interface
 export class AuthService {
   private readonly API_URL = 'api/auth';
   private readonly USER_API_URL = 'api/me';
+  private readonly USER_STORAGE_KEY = 'currentUser';
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -49,12 +50,12 @@ export class AuthService {
     // Call backend logout endpoint to clear cookies
     this.http.post(`${this.API_URL}/logout`, {}, { withCredentials: true }).subscribe({
       next: () => {
-        this.currentUserSubject.next(null);
+        this.clearSession();
         this.router.navigate(['/auth/login']);
       },
       error: () => {
         // Even if backend call fails, clear local state
-        this.currentUserSubject.next(null);
+        this.clearSession();
         this.router.navigate(['/auth/login']);
       }
     });
@@ -67,12 +68,14 @@ export class AuthService {
       email: authResponse.email,
       username: authResponse.username
     };
-    this.currentUserSubject.next(user);
+
+    // Store user data in localStorage and update BehaviorSubject
+    this.setUserData(user);
 
     // Fetch complete user data from backend
     this.getCurrentUser().subscribe({
       next: (fullUser) => {
-        this.currentUserSubject.next(fullUser);
+        this.setUserData(fullUser);
       },
       error: () => {
         // Keep the user from auth response if backend call fails
@@ -81,21 +84,65 @@ export class AuthService {
   }
 
   private loadUserFromStorage(): void {
-    // Try to get current user data from backend
-    // If HTTP-only cookies exist, this will succeed
     this.isUserLoadedSubject.next(false);
-    this.getCurrentUser().subscribe({
-      next: (user) => {
-        this.currentUserSubject.next(user);
-        this.isUserLoadedSubject.next(true);
-      },
-      error: (error) => {
-        if (error.status === 401) {
-          this.currentUserSubject.next(null);
+
+    // First, try to load user from localStorage
+    const storedUser = this.getUserFromStorage();
+    if (storedUser) {
+      this.currentUserSubject.next(storedUser);
+
+      // Verify with backend that the session is still valid
+      this.getCurrentUser().subscribe({
+        next: (user) => {
+          // Update with fresh data from backend
+          this.setUserData(user);
+          this.isUserLoadedSubject.next(true);
+        },
+        error: (error) => {
+          if (error.status === 401) {
+            // Session expired, clear localStorage
+            this.clearSession();
+          }
+          this.isUserLoadedSubject.next(true);
         }
-        this.isUserLoadedSubject.next(true);
-      }
-    });
+      });
+    } else {
+      // No stored user, check if backend has a valid session
+      this.getCurrentUser().subscribe({
+        next: (user) => {
+          this.setUserData(user);
+          this.isUserLoadedSubject.next(true);
+        },
+        error: (error) => {
+          if (error.status === 401) {
+            this.currentUserSubject.next(null);
+          }
+          this.isUserLoadedSubject.next(true);
+        }
+      });
+    }
+  }
+
+  private setUserData(user: User): void {
+    // Update both localStorage and BehaviorSubject
+    localStorage.setItem(this.USER_STORAGE_KEY, JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
+  private getUserFromStorage(): User | null {
+    try {
+      const storedUser = localStorage.getItem(this.USER_STORAGE_KEY);
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error('Error parsing user data from localStorage:', error);
+      localStorage.removeItem(this.USER_STORAGE_KEY);
+      return null;
+    }
+  }
+
+  private clearSession(): void {
+    localStorage.removeItem(this.USER_STORAGE_KEY);
+    this.currentUserSubject.next(null);
   }
 
   getCurrentUser(): Observable<User> {
@@ -105,7 +152,7 @@ export class AuthService {
   refreshUserData(): Observable<User> {
     return this.getCurrentUser().pipe(
       tap(user => {
-        this.currentUserSubject.next(user);
+        this.setUserData(user);
       }),
       catchError(error => {
         return of(null as any);
@@ -116,6 +163,8 @@ export class AuthService {
   isAuthenticated(): boolean {
     const user = this.currentUserSubject.value;
     const authenticated = user !== null;
+    console.log('user', user);
+    console.log('authenticated', authenticated);
     return authenticated;
   }
 }

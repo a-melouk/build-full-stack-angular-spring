@@ -10,7 +10,8 @@ const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [GuestGuard] },
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
+    loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule),
+    canActivate: [GuestGuard]
   },
   {
     path: 'me',
