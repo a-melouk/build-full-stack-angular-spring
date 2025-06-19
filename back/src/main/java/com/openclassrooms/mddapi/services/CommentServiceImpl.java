@@ -34,7 +34,7 @@ public class CommentServiceImpl implements CommentService {
   private CommentMapper commentMapper;
 
   @Override
-  public String createComment(@Valid CreateCommentDto createCommentDto) {
+  public CommentDto createComment(@Valid CreateCommentDto createCommentDto) {
     UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     User currentUser = userRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userDetails.getUsername()));
@@ -48,8 +48,8 @@ public class CommentServiceImpl implements CommentService {
         .post(targetPost)
         .build();
 
-    commentRepository.save(newComment);
-    return "Comment added successfully.";
+    Comment savedComment = commentRepository.save(newComment);
+    return commentMapper.toDto(savedComment);
   }
 
   @Override

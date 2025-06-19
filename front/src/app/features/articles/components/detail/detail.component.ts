@@ -25,7 +25,6 @@ export class DetailComponent implements OnInit {
   // Comment form
   commentForm: FormGroup;
   isSubmittingComment = false;
-  commentSubmitSuccess = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -92,23 +91,16 @@ export class DetailComponent implements OnInit {
     };
 
     this.isSubmittingComment = true;
-    this.commentSubmitSuccess = false;
 
     this.commentService.createComment(commentData).subscribe({
-      next: () => {
+      next: (newComment) => {
         this.isSubmittingComment = false;
-        this.commentSubmitSuccess = true;
         this.commentForm.reset();
 
-        // Reload comments to show the new one
+        // Reload comments to show them in chronological order
         if (this.post) {
           this.loadComments(this.post.id);
         }
-
-        // Hide success message after 3 seconds
-        setTimeout(() => {
-          this.commentSubmitSuccess = false;
-        }, 3000);
       },
       error: () => {
         this.isSubmittingComment = false;

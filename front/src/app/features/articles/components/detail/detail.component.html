@@ -65,10 +65,7 @@
           </article>
         </div>
 
-        <!-- Comment submission success message -->
-        <div *ngIf="commentSubmitSuccess" class="comment-success" role="alert">
-          Commentaire ajouté avec succès !
-        </div>
+
 
         <!-- Add comment form -->
         <form [formGroup]="commentForm" (ngSubmit)="onSubmitComment()" class="comment-form">

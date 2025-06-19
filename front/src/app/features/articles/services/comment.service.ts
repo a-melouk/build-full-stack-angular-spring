@@ -21,10 +21,10 @@ export class CommentService {
   }
 
   /**
-   * Create a new comment
-   * @param comment The comment data
-   */
-  createComment(comment: CreateCommentRequest): Observable<string> {
-    return this.http.post<string>(this.basePath, comment);
+ * Create a new comment
+ * @param comment The comment data
+ */
+  createComment(comment: CreateCommentRequest): Observable<Comment> {
+    return this.http.post<Comment>(this.basePath, comment);
   }
 }
