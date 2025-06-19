@@ -46,19 +46,34 @@ export class NavbarComponent implements OnInit {
     this.authService.logout();
   }
 
+  private getScrollbarWidth(): number {
+    return window.innerWidth - document.documentElement.clientWidth;
+  }
+
+  private preventBodyScroll(): void {
+    const scrollbarWidth = this.getScrollbarWidth();
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+  }
+
+  private restoreBodyScroll(): void {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }
+
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
-    // Prevent body scroll when menu is open
+
     if (this.mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      this.preventBodyScroll();
     } else {
-      document.body.style.overflow = '';
+      this.restoreBodyScroll();
     }
   }
 
   closeMobileMenu(): void {
     this.mobileMenuOpen = false;
-    document.body.style.overflow = '';
+    this.restoreBodyScroll();
   }
 
   isActiveRoute(route: string): boolean {
