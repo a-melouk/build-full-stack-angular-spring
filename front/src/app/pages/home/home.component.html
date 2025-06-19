@@ -1,5 +1,18 @@
-<div class="center">
-  <img src="/assets/logo_p6.png" alt="logo" />
-  <h1>Welcome to MDD</h1>
-  <button mat-raised-button color="primary" (click)="start()">Commencer</button>
+<div class="home">
+  <div class="home__container">
+    <div class="home__content">
+      <div class="home__logo">
+        <img src="/assets/logo_p6.png" alt="MDD Logo" />
+      </div>
+
+      <div class="home__actions">
+        <button class="btn btn--secondary home__btn" (click)="navigateToLogin()">
+          Se connecter
+        </button>
+        <button class="btn btn--primary home__btn" (click)="navigateToRegister()">
+          S'inscrire
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

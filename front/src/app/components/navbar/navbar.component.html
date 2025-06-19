@@ -1,24 +1,62 @@
 <nav class="navbar" *ngIf="currentUser$ | async as user">
-  <div class="navbar-container">
-    <div class="navbar-brand">
-      <h1>MDD</h1>
+  <div class="navbar__container">
+    <!-- Logo/Brand -->
+    <div class="navbar__brand">
+      <img src="/assets/logo_p6.png" alt="MDD Logo" class="navbar__logo" />
     </div>
 
-    <div class="navbar-nav">
-      <button class="nav-link" (click)="navigateToArticles()">
+    <!-- Desktop Navigation -->
+    <div class="navbar__nav navbar__nav--desktop">
+      <button class="navbar__logout" (click)="logout()">
+        Se déconnecter
+      </button>
+
+      <button class="navbar__link" [class.navbar__link--active]="isActiveRoute('articles')"
+        (click)="navigateToArticles()">
         Articles
       </button>
 
-      <button class="nav-link" (click)="navigateToTopics()">
+      <button class="navbar__link" [class.navbar__link--active]="isActiveRoute('topics')" (click)="navigateToTopics()">
         Thèmes
       </button>
 
-      <app-avatar [username]="user.username" [clickable]="true" (click)="navigateToProfile()">
+      <app-avatar [username]="user.username" [clickable]="true" class="navbar__avatar">
       </app-avatar>
+    </div>
 
-      <button class="logout-btn" (click)="logout()">
-        <span class="logout-icon">⟲</span>
+    <!-- Mobile burger menu button -->
+    <button class="navbar__burger" [class.navbar__burger--active]="mobileMenuOpen" (click)="toggleMobileMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="navbar__mobile-menu" [class.navbar__mobile-menu--open]="mobileMenuOpen">
+    <div class="navbar__mobile-nav">
+      <button class="navbar__mobile-link" [class.navbar__mobile-link--active]="isActiveRoute('articles')"
+        (click)="navigateToArticles(); closeMobileMenu()">
+        Articles
       </button>
+
+      <button class="navbar__mobile-link" [class.navbar__mobile-link--active]="isActiveRoute('topics')"
+        (click)="navigateToTopics(); closeMobileMenu()">
+        Thèmes
+      </button>
+
+      <button class="navbar__mobile-logout" (click)="logout()">
+        Se déconnecter
+      </button>
+
+      <app-avatar [username]="user.username" [clickable]="true" class="navbar__mobile-avatar">
+      </app-avatar>
     </div>
   </div>
+
+  <!-- Mobile menu overlay -->
+  <div class="navbar__overlay" [class.navbar__overlay--visible]="mobileMenuOpen" (click)="closeMobileMenu()"></div>
 </nav>
+
+<!-- Blur overlay for page content when mobile menu is open -->
+<div class="page-blur-overlay" [class.page-blur-overlay--visible]="mobileMenuOpen"></div>

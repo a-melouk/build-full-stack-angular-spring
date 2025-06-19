@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -11,13 +12,15 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent {
   loginForm: FormGroup;
   errorMessage = '';
+  isLoading = false;
   private returnUrl: string;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private location: Location
   ) {
     this.loginForm = this.fb.group({
       emailOrUsername: ['', [Validators.required]],
@@ -28,14 +31,23 @@ export class LoginComponent {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/topics';
   }
 
+  goBack(): void {
+    this.location.back();
+  }
+
   onSubmit(): void {
     if (this.loginForm.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
+
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
+          this.isLoading = false;
           this.router.navigate([this.returnUrl]);
         },
         error: (error) => {
-          this.errorMessage = 'Login failed. Please check your credentials.';
+          this.isLoading = false;
+          this.errorMessage = 'Connexion échouée. Veuillez verifier vos identifiants.';
         }
       });
     }

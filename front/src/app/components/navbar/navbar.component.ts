@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { User } from '../../features/auth/interfaces/user.interafce';
 
@@ -11,6 +12,8 @@ import { User } from '../../features/auth/interfaces/user.interafce';
 })
 export class NavbarComponent implements OnInit {
   currentUser$: Observable<User | null>;
+  mobileMenuOpen = false;
+  currentRoute = '';
 
   constructor(
     private authService: AuthService,
@@ -20,6 +23,15 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Track route changes to update active states
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event) => {
+      this.currentRoute = (event as NavigationEnd).url;
+    });
+
+    // Set initial route
+    this.currentRoute = this.router.url;
   }
 
   navigateToArticles(): void {
@@ -30,11 +42,26 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/topics']);
   }
 
-  navigateToProfile(): void {
-    this.router.navigate(['/profile']);
-  }
-
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    // Prevent body scroll when menu is open
+    if (this.mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  isActiveRoute(route: string): boolean {
+    return this.currentRoute.includes(`/${route}`);
   }
 }

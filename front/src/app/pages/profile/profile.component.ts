@@ -36,9 +36,6 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser$.subscribe(user => {
-      if (user && (!user.id || user.id === 0 || !user.email)) {
-        this.refreshUserData();
-      }
       if (user) {
         this.updateFormWithUserData(user);
       }
@@ -142,18 +139,6 @@ export class ProfileComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         this.profileUpdateError = error.error?.message || 'Failed to update profile';
-      }
-    });
-  }
-
-  refreshUserData(): void {
-    this.isLoading = true;
-    this.authService.refreshUserData().subscribe({
-      next: () => {
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
       }
     });
   }

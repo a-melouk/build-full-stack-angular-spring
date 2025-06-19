@@ -3,6 +3,6 @@
     'avatar-medium': size === 'medium',
     'avatar-large': size === 'large',
     'avatar-clickable': clickable
-  }">
+  }" (click)="onClick()" [style.cursor]="clickable ? 'pointer' : 'default'">
   {{ getUserInitial() }}
 </div>

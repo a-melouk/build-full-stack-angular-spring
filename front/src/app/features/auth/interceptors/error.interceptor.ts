@@ -3,11 +3,13 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   constructor(
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -28,8 +30,14 @@ export class ErrorInterceptor implements HttpInterceptor {
               errorMessage = 'Forbidden - You don\'t have permission to access this resource';
             }
 
-            // The backend should handle cookie clearing via the logout endpoint
-            this.router.navigate(['/auth/login']);
+            // Only logout if this is not a profile update request
+            if (!request.url.includes('/profile')) {
+              // Properly clear session and redirect
+              this.authService.logout();
+            } else {
+              // For profile update errors, just redirect without clearing session
+              this.router.navigate(['/auth/login']);
+            }
             break;
           case 404:
             errorMessage = 'Not Found - The requested resource was not found';

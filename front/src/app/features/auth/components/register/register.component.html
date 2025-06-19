@@ -1,51 +1,74 @@
-<div class="auth-container">
-  <mat-card class="auth-card">
-    <mat-card-header>
-      <mat-card-title>Register</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content>
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="email" type="email" />
-          <mat-error *ngIf="registerForm.get('email')?.hasError('required')">Email is required</mat-error>
-          <mat-error *ngIf="registerForm.get('email')?.hasError('email')">Invalid email format</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <input matInput formControlName="username" type="text" />
-          <mat-error *ngIf="registerForm.get('username')?.hasError('required')">Username is required</mat-error>
-          <mat-error *ngIf="registerForm.get('username')?.hasError('minlength')">Username must be at least 3
-            characters</mat-error>
-          <mat-error *ngIf="registerForm.get('username')?.hasError('maxlength')">Username must be less than 20
-            characters</mat-error>
-          <mat-error *ngIf="registerForm.get('username')?.hasError('invalidUsername')">Username can only contain
-            letters, numbers, and underscores</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput formControlName="password" type="password" />
-          <mat-error *ngIf="registerForm.get('password')?.hasError('required')">Password is required</mat-error>
-          <mat-error *ngIf="registerForm.get('password')?.hasError('minlength')">Password must be at least 8
-            characters</mat-error>
-          <mat-error *ngIf="registerForm.get('password')?.hasError('invalidPassword')">
-            Password must contain uppercase, lowercase, number, and special character
-          </mat-error>
-        </mat-form-field>
-
-        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-
-        <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid">
-          Register
+<div class="auth">
+  <div class="auth__container">
+    <div class="auth__card card card--elevated">
+      <div class="auth__header">
+        <button class="auth__back-btn" (click)="goBack()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
         </button>
-
-        <div class="auth-links">
-          <p>Already have an account? <a routerLink="/auth/login">Login here</a></p>
+        <div class="auth__logo">
+          <img src="/assets/logo_p6.png" alt="MDD Logo" />
         </div>
+      </div>
+
+      <h2 class="auth__title">Inscription</h2>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth__form">
+        <div class="form-group">
+          <label for="username" class="form-label">Nom d'utilisateur</label>
+          <input type="text" id="username" formControlName="username" class="form-control"
+            [class.form-control--error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+            placeholder="Entrez votre nom d'utilisateur" />
+          <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+            class="form-error">
+            <small *ngIf="registerForm.get('username')?.errors?.['required']">Ce champ est requis</small>
+            <small *ngIf="registerForm.get('username')?.errors?.['minlength']">Le nom d'utilisateur doit contenir au
+              moins 3 caractères</small>
+            <small *ngIf="registerForm.get('username')?.errors?.['maxlength']">Le nom d'utilisateur doit contenir au
+              maximum 20 caractères</small>
+            <small *ngIf="registerForm.get('username')?.errors?.['invalidUsername']">Le nom d'utilisateur ne peut
+              contenir que des lettres, chiffres et underscores</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Adresse e-mail</label>
+          <input type="email" id="email" formControlName="email" class="form-control"
+            [class.form-control--error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+            placeholder="Entrez votre adresse e-mail" />
+          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="form-error">
+            <small *ngIf="registerForm.get('email')?.errors?.['required']">Ce champ est requis</small>
+            <small *ngIf="registerForm.get('email')?.errors?.['email']">Veuillez saisir une adresse e-mail
+              valide</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Mot de passe</label>
+          <input type="password" id="password" formControlName="password" class="form-control"
+            [class.form-control--error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+            placeholder="Entrez votre mot de passe" />
+          <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+            class="form-error">
+            <small *ngIf="registerForm.get('password')?.errors?.['required']">Ce champ est requis</small>
+            <small *ngIf="registerForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins 8
+              caractères</small>
+            <small *ngIf="registerForm.get('password')?.errors?.['invalidPassword']">Le mot de passe doit contenir au
+              moins une majuscule, une minuscule, un chiffre et un caractère spécial</small>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="auth__error">
+          {{ errorMessage }}
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--large auth__submit"
+          [disabled]="registerForm.invalid || isLoading">
+          {{ isLoading ? 'Inscription...' : 'S\'inscrire' }}
+        </button>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>

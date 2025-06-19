@@ -1,30 +1,51 @@
-<div class="feed-container" *ngIf="!loading && !error">
-  <button mat-stroked-button (click)="toggleSort()" *ngIf="posts.length > 0">
-    Trier {{ sort === 'desc' ? 'par plus ancien' : 'par plus récent' }}
-  </button>
+<div class="articles">
+  <div class="articles__container">
+    <!-- Header with create button -->
+    <div class="articles__header">
+      <button class="btn btn--primary articles__create-btn" (click)="createArticle()">
+        Créer un article
+      </button>
 
-  <div *ngIf="posts.length === 0" class="empty-feed">
-    Aucun article pour le moment.
+      <!-- Sort control -->
+      <button class="articles__sort-btn" (click)="toggleSort()" *ngIf="posts.length > 0">
+        Trier {{ sort === 'desc' ? 'par plus ancien' : 'par plus récent' }}
+      </button>
+    </div>
+
+    <!-- Articles list -->
+    <div class="articles__content" *ngIf="!loading && !error">
+      <div *ngIf="posts.length === 0" class="articles__empty">
+        <p>Aucun article pour le moment.</p>
+      </div>
+
+      <div class="articles__list" *ngIf="posts.length > 0">
+        <article *ngFor="let post of posts; trackBy: trackByPostId" class="article-card card"
+          (click)="openPost(post.id)">
+          <div class="article-card__header">
+            <h3 class="article-card__title">{{ post.title }}</h3>
+            <div class="article-card__meta">
+              <span class="article-card__topic">{{ post.topicName }}</span>
+              <span class="article-card__author">{{ post.username }}</span>
+              <span class="article-card__date">{{ post.createdAt | date:'short' }}</span>
+            </div>
+          </div>
+          <div class="article-card__content">
+            <p>{{ post.content | slice:0:200 }}{{ post.content.length > 200 ? '...' : '' }}</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="loading" class="articles__loading">
+      <div class="loading-spinner"></div>
+      <p>Chargement des articles...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error" class="articles__error">
+      <p>{{ error }}</p>
+      <button class="btn btn--secondary" (click)="retry()">Réessayer</button>
+    </div>
   </div>
-
-  <mat-card *ngFor="let post of posts; trackBy: trackByPostId" class="post-card" (click)="openPost(post.id)">
-    <mat-card-header>
-      <mat-card-title>{{ post.title }}</mat-card-title>
-      <mat-card-subtitle>
-        {{ post.topicName }} • {{ post.username }} •
-        {{ post.createdAt | date:'short' }}
-      </mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p>{{ post.content | slice:0:200 }}{{ post.content.length > 200 ? '...' : '' }}</p>
-    </mat-card-content>
-  </mat-card>
-</div>
-
-<div *ngIf="loading" class="loading">
-  <mat-spinner></mat-spinner>
-</div>
-
-<div *ngIf="error" class="error">
-  {{ error }}
 </div>

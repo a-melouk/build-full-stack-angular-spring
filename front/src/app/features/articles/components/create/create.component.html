@@ -1,37 +1,78 @@
-<mat-card class="create-article-card">
-  <mat-card-title>Nouvel Article</mat-card-title>
-
-  <form [formGroup]="form" (ngSubmit)="submit()">
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Thème</mat-label>
-      <mat-select formControlName="topicId" required>
-        <mat-option *ngFor="let topic of topics" [value]="topic.id">
-          {{ topic.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Titre</mat-label>
-      <input matInput formControlName="title" maxlength="100" required>
-      <mat-hint align="end">{{ form.value.title?.length || 0 }}/100</mat-hint>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Contenu</mat-label>
-      <textarea matInput formControlName="content" rows="6" required></textarea>
-    </mat-form-field>
-
-    <div class="actions">
-      <button mat-raised-button color="primary" type="submit" [disabled]="loading">
-        Publier
-      </button>
-      <button mat-button type="button" (click)="cancel()">
-        Annuler
+<main class="create-article">
+  <div class="create-article__container">
+    <!-- Back navigation -->
+    <div class="create-article__nav">
+      <button class="create-article__back-btn" (click)="goBack()" aria-label="Retour">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
       </button>
     </div>
 
-    <div *ngIf="error" class="error">{{ error }}</div>
-    <div *ngIf="loading" class="loading"><mat-spinner diameter="24"></mat-spinner></div>
-  </form>
-</mat-card>
+    <!-- Centered title -->
+    <div class="create-article__header">
+      <h1 class="create-article__title">Créer un nouvel article</h1>
+    </div>
+
+    <!-- Article creation form -->
+    <section class="create-article__form-section">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="create-article__form" novalidate>
+        <!-- Topic selection -->
+        <div class="form-group">
+          <label for="topicSelect" class="form-label visually-hidden">Sélectionner un thème</label>
+          <select id="topicSelect" formControlName="topicId" class="form-control form-control--select"
+            [class.form-control--error]="form.get('topicId')?.invalid && form.get('topicId')?.touched" required
+            aria-describedby="topicError">
+            <option value="" disabled>Sélectionner un thème</option>
+            <option *ngFor="let topic of topics" [value]="topic.id">
+              {{ topic.name }}
+            </option>
+          </select>
+          <div id="topicError" *ngIf="form.get('topicId')?.invalid && form.get('topicId')?.touched" class="form-error">
+            <small>Veuillez sélectionner un thème</small>
+          </div>
+        </div>
+
+        <!-- Article title -->
+        <div class="form-group">
+          <label for="articleTitle" class="form-label visually-hidden">Titre de l'article</label>
+          <input id="articleTitle" type="text" formControlName="title" class="form-control"
+            [class.form-control--error]="form.get('title')?.invalid && form.get('title')?.touched"
+            placeholder="Titre de l'article" maxlength="100" required aria-describedby="titleError titleCount" />
+          <div id="titleError" *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="form-error">
+            <small>Le titre est requis</small>
+          </div>
+          <div id="titleCount" class="form-hint">
+            {{ form.value.title?.length || 0 }}/100
+          </div>
+        </div>
+
+        <!-- Article content -->
+        <div class="form-group">
+          <label for="articleContent" class="form-label visually-hidden">Contenu de l'article</label>
+          <textarea id="articleContent" formControlName="content" class="form-control form-control--textarea"
+            [class.form-control--error]="form.get('content')?.invalid && form.get('content')?.touched"
+            placeholder="Contenu de l'article" rows="8" required aria-describedby="contentError"></textarea>
+          <div id="contentError" *ngIf="form.get('content')?.invalid && form.get('content')?.touched"
+            class="form-error">
+            <small>Le contenu est requis</small>
+          </div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="create-article__actions">
+          <button type="submit" class="btn btn--primary btn--large create-article__submit"
+            [disabled]="form.invalid || loading" [attr.aria-busy]="loading">
+            {{ loading ? 'Création...' : 'Créer' }}
+          </button>
+        </div>
+
+        <!-- Error message -->
+        <div *ngIf="error" class="create-article__error" role="alert" aria-live="polite">
+          {{ error }}
+        </div>
+      </form>
+    </section>
+  </div>
+</main>

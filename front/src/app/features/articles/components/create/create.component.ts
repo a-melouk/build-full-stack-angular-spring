@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { ArticleService } from '../../services/article.service';
 import { TopicService } from '../../../topics/services/topic.service';
 import { Topic } from '../../../topics/interfaces/topic.interface';
@@ -25,7 +26,8 @@ export class CreateComponent implements OnInit {
     private fb: FormBuilder,
     private topicService: TopicService,
     private articleService: ArticleService,
-    private router: Router
+    private router: Router,
+    private location: Location
   ) { }
 
   ngOnInit(): void {
@@ -33,6 +35,10 @@ export class CreateComponent implements OnInit {
       next: data => this.topics = data,
       error: () => this.error = 'Erreur lors du chargement des thèmes.'
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   submit(): void {
