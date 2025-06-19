@@ -1,0 +1,22 @@
+meta {
+  name: Login abdoumelouk96
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3001/api/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "emailOrUsername": "abdoumelouk96@gmail.com",
+    "password": "Test123!@#"
+  }
+}

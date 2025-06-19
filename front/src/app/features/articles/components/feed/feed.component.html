@@ -1,0 +1,30 @@
+<div class="feed-container" *ngIf="!loading && !error">
+  <button mat-stroked-button (click)="toggleSort()" *ngIf="posts.length > 0">
+    Trier {{ sort === 'desc' ? 'par plus ancien' : 'par plus récent' }}
+  </button>
+
+  <div *ngIf="posts.length === 0" class="empty-feed">
+    Aucun article pour le moment.
+  </div>
+
+  <mat-card *ngFor="let post of posts; trackBy: trackByPostId" class="post-card" (click)="openPost(post.id)">
+    <mat-card-header>
+      <mat-card-title>{{ post.title }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ post.topicName }} • {{ post.username }} •
+        {{ post.createdAt | date:'short' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>{{ post.content | slice:0:200 }}{{ post.content.length > 200 ? '...' : '' }}</p>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div *ngIf="loading" class="loading">
+  <mat-spinner></mat-spinner>
+</div>
+
+<div *ngIf="error" class="error">
+  {{ error }}
+</div>

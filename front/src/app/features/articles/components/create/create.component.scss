@@ -1,0 +1,20 @@
+.full-width {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.error {
+  color: #c62828;
+  margin-top: 8px;
+}

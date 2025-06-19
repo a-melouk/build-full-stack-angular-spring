@@ -23,6 +23,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/topics/topics.module').then(m => m.TopicsModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'articles',
+    loadChildren: () => import('./features/articles/articles.module').then(m => m.ArticlesModule),
+    canActivate: [AuthGuard]
+  },
   // Wildcard route - must be last
   { path: '**', component: RedirectComponent }
 ];

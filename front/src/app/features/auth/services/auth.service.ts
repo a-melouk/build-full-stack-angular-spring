@@ -86,41 +86,13 @@ export class AuthService {
   private loadUserFromStorage(): void {
     this.isUserLoadedSubject.next(false);
 
-    // First, try to load user from localStorage
+    // Only load from localStorage, don't make API calls immediately
     const storedUser = this.getUserFromStorage();
     if (storedUser) {
       this.currentUserSubject.next(storedUser);
-
-      // Verify with backend that the session is still valid
-      this.getCurrentUser().subscribe({
-        next: (user) => {
-          // Update with fresh data from backend
-          this.setUserData(user);
-          this.isUserLoadedSubject.next(true);
-        },
-        error: (error) => {
-          if (error.status === 401) {
-            // Session expired, clear localStorage
-            this.clearSession();
-          }
-          this.isUserLoadedSubject.next(true);
-        }
-      });
-    } else {
-      // No stored user, check if backend has a valid session
-      this.getCurrentUser().subscribe({
-        next: (user) => {
-          this.setUserData(user);
-          this.isUserLoadedSubject.next(true);
-        },
-        error: (error) => {
-          if (error.status === 401) {
-            this.currentUserSubject.next(null);
-          }
-          this.isUserLoadedSubject.next(true);
-        }
-      });
     }
+
+    this.isUserLoadedSubject.next(true);
   }
 
   private setUserData(user: User): void {
@@ -146,7 +118,7 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<User> {
-    return this.http.get<User>(this.USER_API_URL, { withCredentials: true });
+    return this.http.get<User>(`${this.API_URL}/me`, { withCredentials: true });
   }
 
   refreshUserData(): Observable<User> {
@@ -158,6 +130,20 @@ export class AuthService {
         return of(null as any);
       })
     );
+  }
+
+  updateProfile(userData: any): Observable<AuthResponse> {
+    return this.http.put<AuthResponse>(`${this.API_URL}/profile`, userData, { withCredentials: true })
+      .pipe(
+        tap(response => {
+          const updatedUser: User = {
+            id: this.currentUserSubject.value?.id || 0,
+            email: response.email,
+            username: response.username
+          };
+          this.setUserData(updatedUser);
+        })
+      );
   }
 
   isAuthenticated(): boolean {

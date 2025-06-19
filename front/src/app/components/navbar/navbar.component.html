@@ -1,0 +1,24 @@
+<nav class="navbar" *ngIf="currentUser$ | async as user">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <h1>MDD</h1>
+    </div>
+
+    <div class="navbar-nav">
+      <button class="nav-link" (click)="navigateToArticles()">
+        Articles
+      </button>
+
+      <button class="nav-link" (click)="navigateToTopics()">
+        Thèmes
+      </button>
+
+      <app-avatar [username]="user.username" [clickable]="true" (click)="navigateToProfile()">
+      </app-avatar>
+
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">⟲</span>
+      </button>
+    </div>
+  </div>
+</nav>

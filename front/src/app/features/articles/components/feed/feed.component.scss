@@ -1,0 +1,19 @@
+.feed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.post-card {
+  cursor: pointer;
+}
+
+.loading,
+.error,
+.empty-feed {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}

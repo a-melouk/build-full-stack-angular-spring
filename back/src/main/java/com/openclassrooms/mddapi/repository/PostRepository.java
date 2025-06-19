@@ -10,4 +10,5 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByTopicId(Long topicId);
     List<Post> findByUserId(Long userId);
+    List<Post> findByTopic_IdIn(List<Long> topicIds);
 }

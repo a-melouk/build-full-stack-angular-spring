@@ -3,11 +3,13 @@ package com.openclassrooms.mddapi.controllers;
 import com.openclassrooms.mddapi.dto.AuthResponse;
 import com.openclassrooms.mddapi.dto.LoginRequest;
 import com.openclassrooms.mddapi.dto.RegisterRequest;
+import com.openclassrooms.mddapi.dto.UserUpdateDto;
 import com.openclassrooms.mddapi.exception.EmailAlreadyExistsException;
 import com.openclassrooms.mddapi.exception.UserNotFoundException;
 import com.openclassrooms.mddapi.models.User;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.JwtTokenProvider;
+import com.openclassrooms.mddapi.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,6 +45,9 @@ public class AuthController {
 
     @Autowired
     private JwtTokenProvider tokenProvider;
+
+    @Autowired
+    private AuthService authService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -92,6 +97,7 @@ public class AuthController {
         setAuthCookies(response, jwt);
 
         return AuthResponse.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsernameField())
                 .build();
@@ -130,6 +136,7 @@ public class AuthController {
         setAuthCookies(response, jwt);
 
         return AuthResponse.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsernameField())
                 .build();
@@ -147,6 +154,24 @@ public class AuthController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponse> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        AuthResponse userInfo = authService.getCurrentUser(email);
+        return ResponseEntity.ok(userInfo);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<AuthResponse> updateProfile(@Valid @RequestBody UserUpdateDto userUpdateDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        AuthResponse updatedUser = authService.updateProfile(userUpdateDto, email);
+        return ResponseEntity.ok(updatedUser);
     }
 
     private void setAuthCookies(HttpServletResponse response, String jwt) {

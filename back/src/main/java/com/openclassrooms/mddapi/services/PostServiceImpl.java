@@ -11,6 +11,7 @@ import com.openclassrooms.mddapi.models.Comment;
 import com.openclassrooms.mddapi.repository.PostRepository;
 import com.openclassrooms.mddapi.repository.TopicRepository;
 import com.openclassrooms.mddapi.repository.UserRepository;
+import com.openclassrooms.mddapi.repository.SubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
@@ -32,9 +33,35 @@ public class PostServiceImpl implements PostService {
         @Autowired
         private UserRepository userRepository;
 
+        @Autowired
+        private SubscriptionRepository subscriptionRepository;
+
         @Override
         public List<PostDto> getFeed(String sort) {
-                List<Post> posts = postRepository.findAll();
+                // Get authenticated user
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                String email = authentication.getName();
+                User currentUser = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+
+                // Retrieve topics the user is subscribed to
+                List<Long> subscribedTopicIds = subscriptionRepository.findByUserId(currentUser.getId()).stream()
+                                .map(subscription -> subscription.getTopic().getId())
+                                .toList();
+
+                // If no subscriptions, return empty list early
+                if (subscribedTopicIds.isEmpty()) {
+                        return java.util.List.of();
+                }
+
+                        // Use TopicRepository with EntityGraph to fetch topics and their posts efficiently
+        List<Topic> topics = topicRepository.findByIdIn(subscribedTopicIds);
+
+                // Extract all posts from the topics
+                List<Post> posts = topics.stream()
+                                .flatMap(topic -> topic.getPosts().stream())
+                                .toList();
+
                 Comparator<Post> comparator = Comparator.comparing(Post::getCreatedAt);
                 if ("desc".equalsIgnoreCase(sort)) {
                         comparator = comparator.reversed();
@@ -78,6 +105,7 @@ public class PostServiceImpl implements PostService {
                                 .title(post.getTitle())
                                 .content(post.getContent())
                                 .createdAt(post.getCreatedAt())
+                                .username(post.getUser() != null ? post.getUser().getUsernameField() : null)
                                 .topicId(post.getTopic().getId())
                                 .topicName(post.getTopic().getName())
                                 .comments(post.getComments() != null
