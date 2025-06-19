@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { SubscriptionService, SubscriptionDto } from '../../features/topics/services/subscription.service';
 import { Observable, of } from 'rxjs';
@@ -61,6 +61,19 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  passwordValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+
+    const hasUpperCase = /[A-Z]/.test(value);
+    const hasLowerCase = /[a-z]/.test(value);
+    const hasNumeric = /[0-9]/.test(value);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+    const passwordValid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecialChar;
+    return !passwordValid ? { invalidPassword: true } : null;
+  }
+
   onEditProfile(): void {
     this.isEditing = true;
     this.profileUpdateError = '';
@@ -83,12 +96,25 @@ export class ProfileComponent implements OnInit {
 
   onTogglePasswordChange(): void {
     this.showPasswordFields = !this.showPasswordFields;
-    if (!this.showPasswordFields) {
+    if (this.showPasswordFields) {
+      // Add password validation when showing password fields
+      this.profileForm.get('password')?.setValidators([
+        Validators.required,
+        Validators.minLength(8),
+        this.passwordValidator
+      ]);
+      this.profileForm.get('passwordConfirmation')?.setValidators([Validators.required]);
+    } else {
+      // Remove password validation when hiding password fields
+      this.profileForm.get('password')?.clearValidators();
+      this.profileForm.get('passwordConfirmation')?.clearValidators();
       this.profileForm.patchValue({
         password: '',
         passwordConfirmation: ''
       });
     }
+    this.profileForm.get('password')?.updateValueAndValidity();
+    this.profileForm.get('passwordConfirmation')?.updateValueAndValidity();
   }
 
   onSaveProfile(): void {
@@ -102,10 +128,6 @@ export class ProfileComponent implements OnInit {
     if (this.showPasswordFields) {
       if (formValue.password !== formValue.passwordConfirmation) {
         this.profileUpdateError = 'Les mots de passe ne correspondent pas';
-        return;
-      }
-      if (formValue.password.length < 6) {
-        this.profileUpdateError = 'Le mot de passe doit contenir au moins 6 caractères';
         return;
       }
     }

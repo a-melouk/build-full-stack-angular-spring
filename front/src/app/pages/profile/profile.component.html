@@ -75,7 +75,8 @@
                 <div id="passwordConfirmError"
                   *ngIf="profileForm.get('passwordConfirmation')?.invalid && profileForm.get('passwordConfirmation')?.touched"
                   class="form-error">
-                  <small>Les mots de passe ne correspondent pas</small>
+                  <small *ngIf="profileForm.get('passwordConfirmation')?.errors?.['required']">La confirmation du mot de
+                    passe est requise</small>
                 </div>
               </div>
 
@@ -87,7 +88,11 @@
 
               <div id="passwordError"
                 *ngIf="profileForm.get('password')?.invalid && profileForm.get('password')?.touched" class="form-error">
-                <small>Le mot de passe est requis</small>
+                <small *ngIf="profileForm.get('password')?.errors?.['required']">Le mot de passe est requis</small>
+                <small *ngIf="profileForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins
+                  8 caractères</small>
+                <small *ngIf="profileForm.get('password')?.errors?.['invalidPassword']">Le mot de passe doit contenir au
+                  moins une majuscule, une minuscule, un chiffre et un caractère spécial</small>
               </div>
             </div>
 
