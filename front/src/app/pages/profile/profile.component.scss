@@ -10,8 +10,7 @@
 
   &__form-section {
     background: var(--color-white);
-    padding: var(--spacing-2xl) var(--spacing-lg);
-    border-bottom: 1px solid var(--color-border);
+    padding: 0;
   }
 
   &__header {
@@ -95,12 +94,12 @@
 
   &__subscriptions-section {
     background: var(--color-white);
-    padding: var(--spacing-2xl) var(--spacing-lg);
+    padding: 0;
+    margin-top: var(--spacing-2xl);
   }
 
   &__subscriptions-header {
-    border-bottom: 2px solid var(--color-gray-200);
-    padding-bottom: var(--spacing-lg);
+    padding-bottom: 0;
     margin-bottom: var(--spacing-2xl);
   }
 
@@ -152,18 +151,20 @@
 // Subscriptions grid
 .subscriptions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: var(--spacing-xl);
+  grid-template-columns: 1fr 1fr; /* 2 columns like articles and themes */
+  gap: 24px;
   padding: 0;
 }
 
 // Subscription card component
 .subscription-card {
-  background: var(--color-gray-50);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
+  background: #f5f5f5; /* Same background as article and topic cards */
+  border-radius: 8px;
   padding: var(--spacing-xl);
   transition: all 0.15s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure consistent height */
 
   &:hover {
     box-shadow: var(--shadow-md);
@@ -183,6 +184,7 @@
 
   &__content {
     margin-bottom: var(--spacing-lg);
+    flex-grow: 1; /* Take up remaining space */
   }
 
   &__description {
@@ -194,34 +196,37 @@
 
   &__footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center; /* Center button horizontally like topics */
+    margin-top: auto; /* Push footer to bottom */
   }
 
   &__unsubscribe {
-    background-color: var(--color-danger);
-    border: 1px solid var(--color-danger);
+    background-color: var(--color-primary); /* Purple like all other buttons */
+    border: none;
     color: var(--color-white);
-    font-weight: var(--font-weight-medium);
-    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: 700; /* Bold font weight as specified */
+    padding: 9px 14px; /* Same padding as standard buttons */
     border-radius: var(--border-radius);
     transition: all 0.15s ease-in-out;
     cursor: pointer;
-    font-size: var(--font-size-sm);
+    font-size: 16px; /* Same as standard buttons */
+    min-width: 120px; /* Consistent button width */
 
     &:hover:not(:disabled) {
-      background-color: #dc2626;
-      border-color: #dc2626;
+      background-color: var(--color-primary-dark);
       transform: translateY(-1px);
     }
 
     &:focus {
-      outline: 2px solid var(--color-danger);
+      outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
 
     &:disabled {
-      opacity: 0.6;
+      opacity: 0.92;
       cursor: not-allowed;
+      background-color: #939393;
+      color: #fff;
       transform: none;
     }
   }
@@ -243,33 +248,17 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .profile {
-    &__container {
-      margin: 0;
-    }
-
-    &__form-section {
-      padding: var(--spacing-xl) var(--spacing-md);
-    }
-
     &__title {
       font-size: var(--font-size-2xl);
-    }
-
-    &__subscriptions-section {
-      padding: var(--spacing-xl) var(--spacing-md);
     }
 
     &__subscriptions-title {
       font-size: var(--font-size-xl);
     }
-
-    &__actions .btn {
-      width: 100%;
-    }
   }
 
   .subscriptions-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column on mobile */
     gap: var(--spacing-lg);
   }
 
@@ -289,8 +278,7 @@
     }
 
     &__unsubscribe {
-      width: 100%;
-      justify-content: center;
+      min-width: 100px;
     }
   }
 }

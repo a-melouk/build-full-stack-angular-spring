@@ -31,14 +31,14 @@
   &__header {
     text-align: center;
     margin: var(--spacing-2xl) 0;
-    padding: 0 var(--spacing-lg);
+    padding: 0; /* Remove padding - using general app padding */
   }
 
   &__nav {
     display: flex;
     align-items: center;
     gap: var(--spacing-lg);
-    padding: var(--spacing-lg);
+    padding: 0; /* Remove padding - using general app padding */
     background: var(--color-white);
   }
 
@@ -78,7 +78,7 @@
 
   &__form-section {
     background: var(--color-white);
-    padding: var(--spacing-2xl) var(--spacing-lg);
+    padding: 0; /* Remove padding - using general app padding */
   }
 
   &__form {
@@ -156,25 +156,8 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .create-article {
-    &__container {
-      margin: 0;
-    }
-
-    &__header {
-      margin: var(--spacing-xl) 0;
-      padding: 0 var(--spacing-md);
-    }
-
-    &__nav {
-      padding: var(--spacing-md);
-    }
-
     &__title {
       font-size: var(--font-size-xl);
-    }
-
-    &__form-section {
-      padding: var(--spacing-xl) var(--spacing-md);
     }
 
     &__actions {
@@ -190,19 +173,6 @@
 
 @media (max-width: 480px) {
   .create-article {
-    &__header {
-      margin: var(--spacing-lg) 0;
-      padding: 0 var(--spacing-sm);
-    }
-
-    &__nav {
-      padding: var(--spacing-sm);
-    }
-
-    &__form-section {
-      padding: var(--spacing-lg) var(--spacing-sm);
-    }
-
     &__form {
       gap: var(--spacing-lg);
     }

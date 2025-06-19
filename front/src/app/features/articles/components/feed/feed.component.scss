@@ -4,7 +4,7 @@
   &__container {
     max-width: var(--container-max-width);
     margin: 0 auto;
-    padding: var(--spacing-xl) var(--spacing-lg);
+    padding: 0; /* Remove padding - using general app padding */
   }
 
   &__header {
@@ -164,10 +164,6 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .articles {
-    &__container {
-      padding: var(--spacing-lg) var(--spacing-md);
-    }
-
     &__header {
       flex-direction: column;
       gap: var(--spacing-lg);

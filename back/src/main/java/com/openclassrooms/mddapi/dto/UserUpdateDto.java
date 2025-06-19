@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserUpdateDto {
 
-    @Email(message = "Email should be valid")
+    @Email(message = "L'adresse email doit être valide")
     private String email;
 
-    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
+    @Size(min = 3, max = 20, message = "Le nom d'utilisateur doit contenir entre 3 et 20 caractères")
     private String username;
 
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
     private String password;
 
     private String passwordConfirmation;

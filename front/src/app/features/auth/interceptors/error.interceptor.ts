@@ -19,34 +19,32 @@ export class ErrorInterceptor implements HttpInterceptor {
 
         switch (error.status) {
           case 400:
-            errorMessage = 'Bad Request - ' + (error.error?.message || 'Invalid request');
+            errorMessage = 'Requête invalide - ' + (error.error?.message || 'Données invalides');
             break;
           case 401:
           case 403:
             // Handle both authentication (401) and authorization (403) errors
             if (error.status === 401) {
-              errorMessage = 'Unauthorized - Please login again';
+              errorMessage = 'Non autorisé - Veuillez vous reconnecter';
             } else {
-              errorMessage = 'Forbidden - You don\'t have permission to access this resource';
+              errorMessage = 'Accès interdit - Vous n\'avez pas les permissions nécessaires';
             }
 
-            // Only logout if this is not a profile update request
-            if (!request.url.includes('/profile')) {
-              // Properly clear session and redirect
+            // Don't logout during profile updates - user should stay logged in
+            if (!request.url.includes('/profile') && !request.url.includes('/me')) {
+              // Only logout for other authentication failures
               this.authService.logout();
-            } else {
-              // For profile update errors, just redirect without clearing session
-              this.router.navigate(['/auth/login']);
             }
+            // For profile update errors, don't redirect - let the component handle it
             break;
           case 404:
-            errorMessage = 'Not Found - The requested resource was not found';
+            errorMessage = 'Ressource non trouvée - L\'élément demandé n\'existe pas';
             break;
           case 500:
-            errorMessage = 'Internal Server Error - Please try again later';
+            errorMessage = 'Erreur serveur interne - Veuillez réessayer plus tard';
             break;
           default:
-            errorMessage = error.error?.message || 'An unexpected error occurred';
+            errorMessage = error.error?.message || 'Une erreur inattendue s\'est produite';
         }
 
         console.error('HTTP Error:', error.status, errorMessage);

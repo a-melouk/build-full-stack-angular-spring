@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-xl);
+    padding: 0; /* Remove padding - using general app padding */
   }
 
   &__content {
@@ -23,8 +23,8 @@
     justify-content: center;
 
     img {
-      height: 120px;
-      width: auto;
+      width: 412px;
+      height: 238px;
     }
   }
 
@@ -32,31 +32,40 @@
     display: flex;
     gap: var(--spacing-lg);
     width: 100%;
-    max-width: 300px;
+    max-width: 400px;
   }
 
   &__btn {
     flex: 1;
-    padding: var(--spacing-md) var(--spacing-lg);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-    min-height: 2.75rem;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    min-height: 3.5rem;
+    white-space: nowrap;
+
+    /* Override to ensure both buttons have white background */
+    background-color: var(--color-white) !important;
+    color: #7763c5 !important;
+    border: 2px solid #7763c5;
+
+    &:hover:not(:disabled) {
+      background-color: #7763c5 !important;
+      color: #fff !important;
+      transform: translateY(-1px);
+    }
   }
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .home {
-    &__container {
-      padding: var(--spacing-lg);
-    }
-
     &__content {
       gap: var(--spacing-2xl);
     }
 
     &__logo img {
-      height: 100px;
+      width: 300px;
+      height: 173px;
     }
 
     &__actions {
@@ -72,12 +81,9 @@
 
 @media (max-width: 480px) {
   .home {
-    &__container {
-      padding: var(--spacing-md);
-    }
-
     &__logo img {
-      height: 80px;
+      width: 250px;
+      height: 144px;
     }
   }
 }

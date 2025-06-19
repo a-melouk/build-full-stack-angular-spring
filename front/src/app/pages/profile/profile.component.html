@@ -32,7 +32,7 @@
               <label for="profileUsername" class="form-label visually-hidden">Nom d'utilisateur</label>
               <input id="profileUsername" type="text" formControlName="username" class="form-control"
                 [class.form-control--error]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched"
-                placeholder="Username" required aria-describedby="usernameError" />
+                placeholder="Nom d'utilisateur" required aria-describedby="usernameError" />
               <div id="usernameError"
                 *ngIf="profileForm.get('username')?.invalid && profileForm.get('username')?.touched" class="form-error">
                 <small *ngIf="profileForm.get('username')?.errors?.['required']">Le nom d'utilisateur est requis</small>
@@ -135,8 +135,8 @@
                 </p>
               </div>
               <footer class="subscription-card__footer">
-                <button class="btn btn--danger subscription-card__unsubscribe"
-                  [disabled]="isUnsubscribing(subscription.topicId)" (click)="onUnsubscribe(subscription.topicId)"
+                <button class="btn subscription-card__unsubscribe" [disabled]="isUnsubscribing(subscription.topicId)"
+                  (click)="onUnsubscribe(subscription.topicId)"
                   [attr.aria-busy]="isUnsubscribing(subscription.topicId)">
                   {{ isUnsubscribing(subscription.topicId) ? 'Désabonnement...' : 'Se désabonner' }}
                 </button>

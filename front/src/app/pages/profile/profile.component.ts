@@ -101,46 +101,67 @@ export class ProfileComponent implements OnInit {
 
     if (this.showPasswordFields) {
       if (formValue.password !== formValue.passwordConfirmation) {
-        this.profileUpdateError = 'Passwords do not match';
+        this.profileUpdateError = 'Les mots de passe ne correspondent pas';
         return;
       }
       if (formValue.password.length < 6) {
-        this.profileUpdateError = 'Password must be at least 6 characters';
+        this.profileUpdateError = 'Le mot de passe doit contenir au moins 6 caractères';
         return;
       }
     }
 
-    const updateData = {
-      email: formValue.email,
-      username: formValue.username,
-      ...(this.showPasswordFields && formValue.password ? {
-        password: formValue.password,
-        passwordConfirmation: formValue.passwordConfirmation
-      } : {})
-    };
+    // Build update data with only changed fields
+    const updateData: any = {};
 
-    this.isLoading = true;
-    this.profileUpdateError = '';
+    // Get current user data to compare changes
+    this.currentUser$.subscribe(currentUser => {
+      if (currentUser) {
+        // Only include email if it has changed
+        if (formValue.email !== currentUser.email) {
+          updateData.email = formValue.email;
+        }
 
-    this.authService.updateProfile(updateData).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.isEditing = false;
-        this.showPasswordFields = false;
-        this.profileUpdateSuccess = true;
-        this.profileForm.patchValue({
-          password: '',
-          passwordConfirmation: ''
+        // Only include username if it has changed
+        if (formValue.username !== currentUser.username) {
+          updateData.username = formValue.username;
+        }
+
+        // Only include password if it's being updated
+        if (this.showPasswordFields && formValue.password) {
+          updateData.password = formValue.password;
+          updateData.passwordConfirmation = formValue.passwordConfirmation;
+        }
+
+        // Check if there are any changes to send
+        if (Object.keys(updateData).length === 0) {
+          this.profileUpdateError = 'Aucune modification détectée';
+          return;
+        }
+
+        this.isLoading = true;
+        this.profileUpdateError = '';
+
+        this.authService.updateProfile(updateData).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.isEditing = false;
+            this.showPasswordFields = false;
+            this.profileUpdateSuccess = true;
+            this.profileForm.patchValue({
+              password: '',
+              passwordConfirmation: ''
+            });
+            setTimeout(() => {
+              this.profileUpdateSuccess = false;
+            }, 3000);
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.profileUpdateError = error.error?.message || 'Échec de la mise à jour du profil';
+          }
         });
-        setTimeout(() => {
-          this.profileUpdateSuccess = false;
-        }, 3000);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.profileUpdateError = error.error?.message || 'Failed to update profile';
       }
-    });
+    }).unsubscribe();
   }
 
   loadUserSubscriptions(): void {
@@ -154,7 +175,7 @@ export class ProfileComponent implements OnInit {
       }),
       catchError(error => {
         console.error('Error loading user subscriptions:', error);
-        this.subscriptionsError = 'Failed to load subscriptions. Please try again.';
+        this.subscriptionsError = 'Échec du chargement des abonnements. Veuillez réessayer.';
         this.subscriptionsLoading = false;
         return of([]);
       })

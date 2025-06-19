@@ -136,12 +136,30 @@ export class AuthService {
     return this.http.put<AuthResponse>(`${this.API_URL}/profile`, userData, { withCredentials: true })
       .pipe(
         tap(response => {
+          // Update local user data with response
           const updatedUser: User = {
             id: this.currentUserSubject.value?.id || 0,
             email: response.email,
             username: response.username
           };
           this.setUserData(updatedUser);
+
+          // Force refresh user data from backend to ensure consistency
+          this.refreshUserData().subscribe({
+            next: (freshUserData) => {
+              // User data refreshed successfully
+              console.log('User data refreshed after profile update');
+            },
+            error: (error) => {
+              console.warn('Unable to refresh user data:', error);
+              // Don't logout on refresh error, keep the updated data we have
+            }
+          });
+        }),
+        catchError(error => {
+          // Don't logout on profile update errors - let the component handle it
+          console.error('Error updating profile:', error);
+          throw error;
         })
       );
   }

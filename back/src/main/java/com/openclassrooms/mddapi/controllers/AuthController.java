@@ -54,10 +54,10 @@ public class AuthController {
     public AuthResponse registerUser(@Valid @RequestBody RegisterRequest registerRequest,
             HttpServletResponse response) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new EmailAlreadyExistsException("Email is already taken!");
+            throw new EmailAlreadyExistsException("Cette adresse email est déjà utilisée !");
         }
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new EmailAlreadyExistsException("Username is already taken!");
+            throw new EmailAlreadyExistsException("Ce nom d'utilisateur est déjà utilisé !");
         }
         logger.info("Attempting to register user with email: {} and username: {}",
                 registerRequest.getEmail(), registerRequest.getUsername());
@@ -130,7 +130,7 @@ public class AuthController {
 
         User user = userRepository.findByEmailOrUsername(loginRequest.getEmailOrUsername())
                 .orElseThrow(() -> new UserNotFoundException(
-                        "User not found with email or username: " + loginRequest.getEmailOrUsername()));
+                        "Utilisateur non trouvé avec email ou nom d'utilisateur: " + loginRequest.getEmailOrUsername()));
 
         // Set secure HTTP-only cookies
         setAuthCookies(response, jwt);

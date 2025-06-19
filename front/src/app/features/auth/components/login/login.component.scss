@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg);
+  padding: 0; /* Remove padding - using general app padding */
 
   &__container {
     width: 100%;
@@ -90,8 +90,6 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .auth {
-    padding: var(--spacing-md);
-
     &__card {
       padding: var(--spacing-xl);
     }
@@ -108,8 +106,6 @@
 
 @media (max-width: 480px) {
   .auth {
-    padding: var(--spacing-sm);
-
     &__card {
       padding: var(--spacing-lg);
     }
