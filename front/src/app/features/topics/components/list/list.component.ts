@@ -95,6 +95,13 @@ export class ListComponent implements OnInit {
         return of(null);
       })
     ).subscribe({
+      next: () => {
+        // Subscription successful - status already updated in tap
+      },
+      error: (error) => {
+        console.error('Subscription failed:', error);
+        this.subscribingTopics[topicId] = false;
+      },
       complete: () => {
         this.subscribingTopics[topicId] = false;
       }

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors }
 import { AuthService } from '../../features/auth/services/auth.service';
 import { SubscriptionService, SubscriptionDto } from '../../features/topics/services/subscription.service';
 import { Observable, of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, take } from 'rxjs/operators';
 import { User } from '../../features/auth/interfaces/user.interafce';
 
 @Component({
@@ -35,7 +35,7 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.currentUser$.subscribe(user => {
+    this.currentUser$.pipe(take(1)).subscribe(user => {
       if (user) {
         this.updateFormWithUserData(user);
       }
@@ -87,11 +87,11 @@ export class ProfileComponent implements OnInit {
     this.profileUpdateError = '';
     this.profileUpdateSuccess = false;
 
-    this.currentUser$.subscribe(currentUser => {
+    this.currentUser$.pipe(take(1)).subscribe(currentUser => {
       if (currentUser) {
         this.updateFormWithUserData(currentUser);
       }
-    }).unsubscribe();
+    });
   }
 
   onTogglePasswordChange(): void {
@@ -136,7 +136,7 @@ export class ProfileComponent implements OnInit {
     const updateData: any = {};
 
     // Get current user data to compare changes
-    this.currentUser$.subscribe(currentUser => {
+    this.currentUser$.pipe(take(1)).subscribe(currentUser => {
       if (currentUser) {
         // Only include email if it has changed
         if (formValue.email !== currentUser.email) {
@@ -183,7 +183,7 @@ export class ProfileComponent implements OnInit {
           }
         });
       }
-    }).unsubscribe();
+    });
   }
 
   loadUserSubscriptions(): void {

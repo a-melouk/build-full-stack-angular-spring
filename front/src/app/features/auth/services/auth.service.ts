@@ -6,6 +6,7 @@ import { User } from '../interfaces/user.interafce';
 import { AuthResponse } from '../interfaces/response/authresponse.interface.ts';
 import { LoginRequest } from '../interfaces/request/loginrequest.interface';
 import { RegisterRequest } from '../interfaces/request/registerrequest.interface';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -167,8 +168,12 @@ export class AuthService {
   isAuthenticated(): boolean {
     const user = this.currentUserSubject.value;
     const authenticated = user !== null;
-    console.log('user', user);
-    console.log('authenticated', authenticated);
+
+    if (!environment.production) {
+      console.log('user', user);
+      console.log('authenticated', authenticated);
+    }
+
     return authenticated;
   }
 }
