@@ -18,10 +18,13 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean> {
 
+    // First check if user is authenticated (this will be fast with localStorage)
     if (this.authService.isAuthenticated()) {
       return of(true);
     }
 
+    // If not authenticated immediately, wait for user loading to complete
+    // This handles the case where the app is initializing and checking with backend
     return this.authService.isUserLoaded$.pipe(
       filter(loaded => loaded === true),
       take(1),
@@ -30,7 +33,10 @@ export class AuthGuard implements CanActivate {
         if (isAuthenticated) {
           return of(true);
         }
-        this.router.navigate(['/auth/login']);
+        // Store the attempted URL for redirect after login
+        this.router.navigate(['/auth/login'], {
+          queryParams: { returnUrl: state.url }
+        });
         return of(false);
       })
     );

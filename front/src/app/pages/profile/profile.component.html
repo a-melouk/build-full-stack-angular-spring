@@ -1,65 +1,161 @@
-<div class="profile-container">
-  <div class="profile-card">
-    <h2>My Profile</h2>
+<main class="profile">
+  <div class="profile__container">
+    <!-- Profile form section -->
+    <section class="profile__form-section">
+      <header class="profile__header">
+        <h1 class="profile__title">Profil utilisateur</h1>
+      </header>
 
-    <div *ngIf="isLoading" class="loading">Loading user data...</div>
+      <div class="profile__content">
+        <!-- Loading state -->
+        <div *ngIf="isLoading" class="profile__loading" aria-live="polite">
+          Chargement des données utilisateur...
+        </div>
 
-    <div class="user-info" *ngIf="currentUser$ | async as user">
-      <div class="info-group">
-        <label>Email:</label>
-        <span>{{ user.email || 'Not available' }}</span>
-      </div>
+        <!-- Success message -->
+        <div *ngIf="profileUpdateSuccess" class="profile__message profile__message--success" role="alert"
+          aria-live="polite">
+          Profil mis à jour avec succès !
+        </div>
 
-      <div class="info-group">
-        <label>Username:</label>
-        <span>{{ user.username || 'Not available' }}</span>
-      </div>
+        <!-- Error message -->
+        <div *ngIf="profileUpdateError" class="profile__message profile__message--error" role="alert"
+          aria-live="polite">
+          {{ profileUpdateError }}
+        </div>
 
-      <div class="info-group">
-        <label>User ID:</label>
-        <span>{{ user.id || 'Not available' }}</span>
-      </div>
-    </div>
+        <!-- Profile form -->
+        <div class="profile__user-data" *ngIf="currentUser$ | async as user">
+          <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" class="profile__form" novalidate>
+            <!-- Username field -->
+            <div class="form-group">
+              <label for="profileUsername" class="form-label visually-hidden">Nom d'utilisateur</label>
+              <input id="profileUsername" type="text" formControlName="username" class="form-control"
+                [class.form-control--error]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched"
+                placeholder="Nom d'utilisateur" required aria-describedby="usernameError" />
+              <div id="usernameError"
+                *ngIf="profileForm.get('username')?.invalid && profileForm.get('username')?.touched" class="form-error">
+                <small *ngIf="profileForm.get('username')?.errors?.['required']">Le nom d'utilisateur est requis</small>
+                <small *ngIf="profileForm.get('username')?.errors?.['minlength']">Le nom d'utilisateur doit contenir au
+                  moins 3 caractères</small>
+                <small *ngIf="profileForm.get('username')?.errors?.['maxlength']">Le nom d'utilisateur ne peut pas
+                  dépasser 20 caractères</small>
+              </div>
+            </div>
 
-    <div class="profile-actions">
-      <button type="button" (click)="refreshUserData()" class="btn-primary" [disabled]="isLoading">
-        {{ isLoading ? 'Refreshing...' : 'Refresh Data' }}
-      </button>
-      <button type="button" (click)="logout()" class="btn-secondary">
-        Logout
-      </button>
-    </div>
-  </div>
+            <!-- Email field -->
+            <div class="form-group">
+              <label for="profileEmail" class="form-label visually-hidden">Adresse email</label>
+              <input id="profileEmail" type="email" formControlName="email" class="form-control"
+                [class.form-control--error]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+                placeholder="email@email.fr" required aria-describedby="emailError" />
+              <div id="emailError" *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+                class="form-error">
+                <small *ngIf="profileForm.get('email')?.errors?.['required']">L'adresse email est requise</small>
+                <small *ngIf="profileForm.get('email')?.errors?.['email']">Veuillez saisir une adresse email
+                  valide</small>
+              </div>
+            </div>
 
-  <!-- Subscriptions Section -->
-  <div class="subscriptions-card">
-    <h2>My Subscriptions</h2>
+            <!-- Password field with toggle -->
+            <div class="form-group">
+              <label for="profilePassword" class="form-label visually-hidden">Mot de passe</label>
+              <input id="profilePassword" type="password" formControlName="password" class="form-control"
+                [class.form-control--error]="profileForm.get('password')?.invalid && profileForm.get('password')?.touched"
+                placeholder="Mot de passe"
+                [attr.aria-describedby]="showPasswordFields ? 'passwordError passwordConfirmGroup' : null" />
 
-    <div *ngIf="subscriptionsLoading" class="loading">Loading subscriptions...</div>
+              <!-- Password confirmation field (shown when password is being changed) -->
+              <div *ngIf="showPasswordFields" id="passwordConfirmGroup" class="form-group form-group--nested">
+                <label for="passwordConfirmation" class="form-label visually-hidden">Confirmer le mot de passe</label>
+                <input id="passwordConfirmation" type="password" formControlName="passwordConfirmation"
+                  class="form-control"
+                  [class.form-control--error]="profileForm.get('passwordConfirmation')?.invalid && profileForm.get('passwordConfirmation')?.touched"
+                  placeholder="Confirmer le mot de passe" aria-describedby="passwordConfirmError" />
+                <div id="passwordConfirmError"
+                  *ngIf="profileForm.get('passwordConfirmation')?.invalid && profileForm.get('passwordConfirmation')?.touched"
+                  class="form-error">
+                  <small *ngIf="profileForm.get('passwordConfirmation')?.errors?.['required']">La confirmation du mot de
+                    passe est requise</small>
+                </div>
+              </div>
 
-    <div *ngIf="!subscriptionsLoading && subscriptionsError" class="error-state">
-      <p class="error-message">{{ subscriptionsError }}</p>
-      <button (click)="loadUserSubscriptions()" class="retry-button">Retry</button>
-    </div>
+              <!-- Password change toggle -->
+              <button type="button" class="profile__password-toggle" (click)="onTogglePasswordChange()"
+                [attr.aria-pressed]="showPasswordFields">
+                {{ showPasswordFields ? 'Annuler la modification' : 'Modifier le mot de passe' }}
+              </button>
 
-    <div *ngIf="!subscriptionsLoading && !subscriptionsError" class="subscriptions-content">
-      <div *ngIf="subscriptions.length > 0; else noSubscriptions" class="subscriptions-grid">
-        <div *ngFor="let subscription of subscriptions" class="subscription-card">
-          <h3>{{ subscription.topicName }}</h3>
-          <p>{{ subscription.topicDescription }}</p>
-          <div class="subscription-meta">
-            <small>Subscribed on: {{ subscription.subscribedAt | date:'short' }}</small>
-          </div>
-          <button class="unsubscribe-button" [disabled]="isUnsubscribing(subscription.topicId)"
-            (click)="onUnsubscribe(subscription.topicId)">
-            {{ isUnsubscribing(subscription.topicId) ? 'Unsubscribing...' : 'Se désabonner' }}
-          </button>
+              <div id="passwordError"
+                *ngIf="profileForm.get('password')?.invalid && profileForm.get('password')?.touched" class="form-error">
+                <small *ngIf="profileForm.get('password')?.errors?.['required']">Le mot de passe est requis</small>
+                <small *ngIf="profileForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins
+                  8 caractères</small>
+                <small *ngIf="profileForm.get('password')?.errors?.['invalidPassword']">Le mot de passe doit contenir au
+                  moins une majuscule, une minuscule, un chiffre et un caractère spécial</small>
+              </div>
+            </div>
+
+            <!-- Save button -->
+            <div class="profile__actions">
+              <button type="submit" class="btn btn--primary btn--large" [disabled]="isLoading || profileForm.invalid"
+                [attr.aria-busy]="isLoading">
+                {{ isLoading ? 'Sauvegarde...' : 'Sauvegarder' }}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
+    </section>
 
-      <ng-template #noSubscriptions>
-        <p class="no-subscriptions">You are not subscribed to any topics yet.</p>
-      </ng-template>
-    </div>
+    <!-- Subscriptions section -->
+    <section class="profile__subscriptions-section">
+      <header class="profile__subscriptions-header">
+        <h2 class="profile__subscriptions-title">Abonnements</h2>
+      </header>
+
+      <div class="profile__subscriptions-content">
+        <!-- Loading state -->
+        <div *ngIf="subscriptionsLoading" class="profile__loading" aria-live="polite">
+          Chargement des abonnements...
+        </div>
+
+        <!-- Error state -->
+        <div *ngIf="!subscriptionsLoading && subscriptionsError" class="profile__error-state">
+          <p class="profile__error-message">{{ subscriptionsError }}</p>
+          <button (click)="loadUserSubscriptions()" class="btn btn--secondary">Réessayer</button>
+        </div>
+
+        <!-- Subscriptions grid -->
+        <div *ngIf="!subscriptionsLoading && !subscriptionsError" class="profile__subscriptions-grid">
+          <div *ngIf="subscriptions.length > 0; else noSubscriptions" class="subscriptions-grid">
+            <article *ngFor="let subscription of subscriptions" class="subscription-card">
+              <header class="subscription-card__header">
+                <h3 class="subscription-card__title">{{ subscription.topicName || 'Titre du thème' }}</h3>
+              </header>
+              <div class="subscription-card__content">
+                <p class="subscription-card__description">
+                  {{ subscription.topicDescription || 'Description: lorem ipsum is simply dummy text of the printing and
+                  typesetting industry. Lorem Ipsum has been the industry\'s standard...' }}
+                </p>
+              </div>
+              <footer class="subscription-card__footer">
+                <button class="btn subscription-card__unsubscribe" [disabled]="isUnsubscribing(subscription.topicId)"
+                  (click)="onUnsubscribe(subscription.topicId)"
+                  [attr.aria-busy]="isUnsubscribing(subscription.topicId)">
+                  {{ isUnsubscribing(subscription.topicId) ? 'Désabonnement...' : 'Se désabonner' }}
+                </button>
+              </footer>
+            </article>
+          </div>
+
+          <ng-template #noSubscriptions>
+            <div class="profile__no-subscriptions">
+              <p>Vous n'êtes abonné à aucun sujet pour le moment.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </section>
   </div>
-</div>
+</main>

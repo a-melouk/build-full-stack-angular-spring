@@ -34,7 +34,7 @@ export class ListComponent implements OnInit {
       catchError(error => {
         console.error('Error fetching topics:', error);
         this.loading = false;
-        this.error = 'Failed to load topics. Please try again.';
+        this.error = 'Échec du chargement des thèmes. Veuillez réessayer.';
 
         // For auth errors (401/403), let the ErrorInterceptor handle the redirect
         // For other errors, show the error message
@@ -78,6 +78,11 @@ export class ListComponent implements OnInit {
   }
 
   public onSubscribe(topicId: number): void {
+    // Only allow subscribing if not already subscribed
+    if (this.isSubscribed(topicId)) {
+      return; // Do nothing if already subscribed
+    }
+
     this.subscribingTopics[topicId] = true;
 
     this.subscriptionService.subscribe(topicId).pipe(
@@ -91,8 +96,11 @@ export class ListComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
+        // Subscription successful - status already updated in tap
       },
-      error: () => {
+      error: (error) => {
+        console.error('Subscription failed:', error);
+        this.subscribingTopics[topicId] = false;
       },
       complete: () => {
         this.subscribingTopics[topicId] = false;

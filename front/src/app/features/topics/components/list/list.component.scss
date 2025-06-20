@@ -1,102 +1,143 @@
-.topics-container {
-  padding: 2rem;
+.topics {
+  min-height: 100vh;
+  padding: var(--spacing-2xl) 0;
+
+  &__container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0; /* Remove padding - using general app padding */
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columns like articles */
+    gap: 45px; /* Same gap as articles */
+  }
 }
 
+/* Loading and Error States */
 .loading-state,
 .error-state {
   text-align: center;
-  padding: 2rem;
+  padding: var(--spacing-2xl);
+
+  p {
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-lg);
+  }
 }
 
 .error-state {
-  .error-message {
-    color: #f44336;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-  }
-
-  .retry-button {
-    background-color: #8a63d2;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.75rem 1.5rem;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #7048b8;
-    }
+  .btn {
+    margin-top: var(--spacing-md);
   }
 }
 
-.topics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
+/* Topic Card */
 .topic-card {
-  border: 1px solid #ddd;
+  background: #f5f5f5; /* Same background as article cards */
   border-radius: 8px;
-  padding: 1.5rem;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 12px 22px 11px 19px; /* Exact padding specified */
   display: flex;
   flex-direction: column;
+  height: 100%; /* Ensure consistent height */
 
-  h2 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-size: 1.25rem;
-    font-weight: bold;
+  &__content {
+    flex-grow: 1; /* Take up available space */
+    display: flex;
+    flex-direction: column;
   }
 
-  p {
-    flex-grow: 1;
-    margin-bottom: 1rem;
-    color: #555;
-    line-height: 1.4;
+  &__name {
+    margin: 0 0 8px 0; /* 8px gap between title and description */
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    line-height: 1.2;
   }
 
-  button {
-    padding: 0.75rem 1.5rem;
+  &__description {
+    margin: 0 0 10px 0; /* 10px between description and button */
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    flex-grow: 1; /* Take up remaining space */
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: center; /* Center button horizontally */
+    margin-top: auto; /* Push footer to bottom */
+  }
+
+  &__action {
+    padding: 9px 14px; /* Same as standard buttons */
+    font-size: 16px;
+    font-weight: 700; /* Bold text as requested */
+    border-radius: var(--border-radius);
     border: none;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    align-self: center;
-    width: fit-content;
+    transition: all 0.15s ease-in-out;
+    min-width: 120px; /* Consistent button width */
 
     &:disabled {
+      opacity: 0.92;
       cursor: not-allowed;
-      opacity: 0.7;
+      background-color: #939393;
+      color: #fff;
+
+      &:hover {
+        transform: none; /* No hover effect when disabled */
+      }
+    }
+
+    /* Subscribe button (primary) */
+    &.btn--primary {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+
+      &:hover:not(:disabled) {
+        background-color: var(--color-primary-dark);
+        transform: translateY(-1px);
+      }
+    }
+
+    /* Already subscribed button (disabled styling) */
+    &.btn--subscribed {
+      opacity: 0.92;
+      cursor: not-allowed;
+      background-color: #939393;
+      color: #fff;
+
+      &:hover {
+        opacity: 0.92; /* Keep same opacity on hover */
+        transform: none; /* No hover effect */
+        background-color: #939393; /* Maintain disabled background */
+        color: #fff; /* Maintain disabled text color */
+      }
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .topics {
+    &__list {
+      grid-template-columns: 1fr; /* Single column on mobile */
+      gap: var(--spacing-xl);
     }
   }
 
-  .subscribe-button {
-    background-color: #8a63d2;
-    color: white;
+  .topic-card {
+    padding: var(--spacing-lg); /* More consistent padding on mobile */
 
-    &:hover:not(:disabled) {
-      background-color: #7048b8;
+    &__name {
+      font-size: var(--font-size-lg);
     }
 
-    &:disabled {
-      background-color: #cccccc;
-    }
-  }
-
-  .subscribed-button {
-    background-color: #a0a0a0;
-    color: white;
-    cursor: not-allowed;
-
-    &:hover {
-      background-color: #8c8c8c;
+    &__action {
+      min-width: 100px;
     }
   }
 }

@@ -1,0 +1,12 @@
+/* General content padding for all pages */
+.app-content {
+  padding: 30px 20px 20px 20px; /* top, right, bottom, left - no top padding */
+  min-height: calc(100vh - 60px); /* Adjust for navbar height */
+}
+
+/* Mobile responsive padding */
+@media (max-width: 768px) {
+  .app-content {
+    padding: 20px 13px 13px 13px; /* 13px padding for mobile */
+  }
+}

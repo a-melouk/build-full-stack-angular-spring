@@ -10,7 +10,8 @@ const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [GuestGuard] },
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
+    loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule),
+    canActivate: [GuestGuard]
   },
   {
     path: 'me',
@@ -20,6 +21,11 @@ const routes: Routes = [
   {
     path: 'topics',
     loadChildren: () => import('./features/topics/topics.module').then(m => m.TopicsModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'articles',
+    loadChildren: () => import('./features/articles/articles.module').then(m => m.ArticlesModule),
     canActivate: [AuthGuard]
   },
   // Wildcard route - must be last

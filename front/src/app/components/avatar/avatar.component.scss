@@ -1,0 +1,43 @@
+.avatar {
+  border-radius: 50%;
+  background-color: #673ab7;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
+}
+
+.avatar-medium {
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+}
+
+.avatar-large {
+  width: 56px;
+  height: 56px;
+  font-size: 1.4rem;
+}
+
+.avatar-clickable {
+  cursor: pointer;
+
+  &:hover {
+    background-color: #5e35b1;
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    outline: 2px solid #673ab7;
+    outline-offset: 2px;
+  }
+}

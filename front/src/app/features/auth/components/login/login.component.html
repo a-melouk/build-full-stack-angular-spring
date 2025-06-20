@@ -1,36 +1,51 @@
-<div class="auth-container">
-  <mat-card class="auth-card">
-    <mat-card-header>
-      <mat-card-title>Login</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-          <mat-label>Email or Username</mat-label>
-          <input matInput formControlName="emailOrUsername" type="text" />
-          <mat-error *ngIf="loginForm.get('emailOrUsername')?.hasError('required')">Email or username is
-            required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput formControlName="password" type="password" />
-          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">Password is required</mat-error>
-          <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">Password must be at least 8
-            characters</mat-error>
-        </mat-form-field>
-
-        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-
-        <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
-          Login
+<div class="auth">
+  <div class="auth__container">
+    <div class="auth__card card card--elevated">
+      <div class="auth__header">
+        <button class="auth__back-btn" (click)="goBack()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
         </button>
-
-        <div class="auth-links">
-          <p>Don't have an account? <a routerLink="/auth/register">Register here</a></p>
+        <div class="auth__logo">
+          <img src="/assets/logo_p6.png" alt="MDD Logo" />
         </div>
+      </div>
+
+      <h2 class="auth__title">Se connecter</h2>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth__form">
+        <div class="form-group">
+          <label for="emailOrUsername" class="form-label">E-mail ou nom d'utilisateur</label>
+          <input type="text" id="emailOrUsername" formControlName="emailOrUsername" class="form-control"
+            [class.form-control--error]="loginForm.get('emailOrUsername')?.invalid && loginForm.get('emailOrUsername')?.touched"
+            placeholder="Entrez votre e-mail ou nom d'utilisateur" />
+          <div *ngIf="loginForm.get('emailOrUsername')?.invalid && loginForm.get('emailOrUsername')?.touched"
+            class="form-error">
+            <small *ngIf="loginForm.get('emailOrUsername')?.errors?.['required']">Ce champ est requis</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Mot de passe</label>
+          <input type="password" id="password" formControlName="password" class="form-control"
+            [class.form-control--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            placeholder="Entrez votre mot de passe" />
+          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="form-error">
+            <small *ngIf="loginForm.get('password')?.errors?.['required']">Ce champ est requis</small>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="auth__error">
+          {{ errorMessage }}
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--large auth__submit"
+          [disabled]="loginForm.invalid || isLoading">
+          {{ isLoading ? 'Connexion...' : 'Se connecter' }}
+        </button>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>

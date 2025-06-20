@@ -17,7 +17,7 @@ public class PostDto {
     private String title;
     private String content;
     private LocalDateTime createdAt;
-    private String authorName;
+    private String username;
     private Long topicId;
     private String topicName;
     private List<CommentDto> comments;

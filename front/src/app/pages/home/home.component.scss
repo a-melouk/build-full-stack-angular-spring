@@ -1,7 +1,89 @@
-.center {
+.home {
   height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+
+  &__container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Remove padding - using general app padding */
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-3xl);
+    max-width: 400px;
+    width: 100%;
+  }
+
+  &__logo {
+    display: flex;
+    justify-content: center;
+
+    img {
+      width: 412px;
+      height: 238px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--spacing-lg);
+    width: 100%;
+    max-width: 400px;
+  }
+
+  &__btn {
+    flex: 1;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    min-height: 3.5rem;
+    white-space: nowrap;
+
+    /* Override to ensure both buttons have white background */
+    background-color: var(--color-white) !important;
+    color: #7763c5 !important;
+    border: 2px solid #7763c5;
+
+    &:hover:not(:disabled) {
+      background-color: #7763c5 !important;
+      color: #fff !important;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .home {
+    &__content {
+      gap: var(--spacing-2xl);
+    }
+
+    &__logo img {
+      width: 300px;
+      height: 173px;
+    }
+
+    &__actions {
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    &__btn {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .home {
+    &__logo img {
+      width: 250px;
+      height: 144px;
+    }
+  }
 }

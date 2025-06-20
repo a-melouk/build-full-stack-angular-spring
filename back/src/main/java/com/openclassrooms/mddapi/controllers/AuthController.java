@@ -3,11 +3,13 @@ package com.openclassrooms.mddapi.controllers;
 import com.openclassrooms.mddapi.dto.AuthResponse;
 import com.openclassrooms.mddapi.dto.LoginRequest;
 import com.openclassrooms.mddapi.dto.RegisterRequest;
+import com.openclassrooms.mddapi.dto.UserUpdateDto;
 import com.openclassrooms.mddapi.exception.EmailAlreadyExistsException;
 import com.openclassrooms.mddapi.exception.UserNotFoundException;
 import com.openclassrooms.mddapi.models.User;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.JwtTokenProvider;
+import com.openclassrooms.mddapi.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,15 +46,18 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+    @Autowired
+    private AuthService authService;
+
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse registerUser(@Valid @RequestBody RegisterRequest registerRequest,
             HttpServletResponse response) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new EmailAlreadyExistsException("Email is already taken!");
+            throw new EmailAlreadyExistsException("Cette adresse email est déjà utilisée !");
         }
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new EmailAlreadyExistsException("Username is already taken!");
+            throw new EmailAlreadyExistsException("Ce nom d'utilisateur est déjà utilisé !");
         }
         logger.info("Attempting to register user with email: {} and username: {}",
                 registerRequest.getEmail(), registerRequest.getUsername());
@@ -92,6 +97,7 @@ public class AuthController {
         setAuthCookies(response, jwt);
 
         return AuthResponse.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsernameField())
                 .build();
@@ -124,12 +130,13 @@ public class AuthController {
 
         User user = userRepository.findByEmailOrUsername(loginRequest.getEmailOrUsername())
                 .orElseThrow(() -> new UserNotFoundException(
-                        "User not found with email or username: " + loginRequest.getEmailOrUsername()));
+                        "Utilisateur non trouvé avec email ou nom d'utilisateur: " + loginRequest.getEmailOrUsername()));
 
         // Set secure HTTP-only cookies
         setAuthCookies(response, jwt);
 
         return AuthResponse.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsernameField())
                 .build();
@@ -147,6 +154,24 @@ public class AuthController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponse> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        AuthResponse userInfo = authService.getCurrentUser(email);
+        return ResponseEntity.ok(userInfo);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<AuthResponse> updateProfile(@Valid @RequestBody UserUpdateDto userUpdateDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        AuthResponse updatedUser = authService.updateProfile(userUpdateDto, email);
+        return ResponseEntity.ok(updatedUser);
     }
 
     private void setAuthCookies(HttpServletResponse response, String jwt) {

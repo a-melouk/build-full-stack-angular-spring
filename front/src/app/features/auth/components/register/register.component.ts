@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-register',
@@ -11,17 +12,23 @@ import { AuthService } from '../../services/auth.service';
 export class RegisterComponent {
   registerForm: FormGroup;
   errorMessage = '';
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private location: Location
   ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), this.usernameValidator]],
       password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]]
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   usernameValidator(control: AbstractControl): ValidationErrors | null {
@@ -48,12 +55,17 @@ export class RegisterComponent {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
+
       this.authService.register(this.registerForm.value).subscribe({
         next: () => {
+          this.isLoading = false;
           this.router.navigate(['/topics']);
         },
         error: (error) => {
-          this.errorMessage = 'Registration failed. Please try again.';
+          this.isLoading = false;
+          this.errorMessage = 'Inscription échouée. Veuillez réessayer.';
         }
       });
     }
