@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TopicService } from '../../services/topic.service';
 import { SubscriptionService } from '../../services/subscription.service';
 import { Topic } from '../../interfaces/topic.interface';
-import { Observable, EMPTY, catchError, tap, of, forkJoin } from 'rxjs';
+import { Observable, EMPTY, catchError, tap, of, forkJoin, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-list',
@@ -26,10 +26,47 @@ export class ListComponent implements OnInit {
     this.error = '';
 
     this.topicService.all().pipe(
-      tap(data => {
-        console.log('Topics received:', data);
-        this.topics = data;
-        this.loadSubscriptionStatuses();
+      tap(topics => {
+        console.log('Topics received:', topics);
+        this.topics = topics;
+      }),
+      switchMap(topics => {
+        if (topics.length === 0) {
+          this.loading = false;
+          return of(null);
+        }
+
+        // Process each topic individually
+        let completedChecks = 0;
+        const totalTopics = topics.length;
+
+        for (const topic of topics) {
+          this.subscriptionService.checkSubscription(topic.id).pipe(
+            tap(isSubscribed => {
+              this.subscriptionStatus[topic.id] = isSubscribed;
+              completedChecks++;
+
+              // Check if all topics have been processed
+              if (completedChecks === totalTopics) {
+                this.loading = false;
+              }
+            }),
+            catchError(error => {
+              console.error(`Error checking subscription for topic ${topic.id}:`, error);
+              this.subscriptionStatus[topic.id] = false;
+              completedChecks++;
+
+              // Check if all topics have been processed
+              if (completedChecks === totalTopics) {
+                this.loading = false;
+              }
+
+              return of(false);
+            })
+          ).subscribe();
+        }
+
+        return of(null);
       }),
       catchError(error => {
         console.error('Error fetching topics:', error);
@@ -37,44 +74,13 @@ export class ListComponent implements OnInit {
         this.error = 'Échec du chargement des thèmes. Veuillez réessayer.';
 
         // For auth errors (401/403), let the ErrorInterceptor handle the redirect
-        // For other errors, show the error message
         if (error.status === 401 || error.status === 403) {
-          // Don't return EMPTY, let the ErrorInterceptor handle this
           throw error;
         }
 
-        return of([]); // Return empty array for non-auth errors
+        return of([]);
       })
-    ).subscribe(); // Subscribe immediately!
-  }
-
-  private loadSubscriptionStatuses(): void {
-    if (this.topics.length === 0) {
-      this.loading = false;
-      return;
-    }
-
-    const subscriptionChecks = this.topics.map(topic =>
-      this.subscriptionService.checkSubscription(topic.id).pipe(
-        tap(isSubscribed => {
-          this.subscriptionStatus[topic.id] = isSubscribed;
-        }),
-        catchError(error => {
-          console.error(`Error checking subscription for topic ${topic.id}:`, error);
-          this.subscriptionStatus[topic.id] = false;
-          return of(false);
-        })
-      )
-    );
-
-    forkJoin(subscriptionChecks).subscribe({
-      next: () => {
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
+    ).subscribe();
   }
 
   public onSubscribe(topicId: number): void {
