@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 public interface CommentService {
-  String createComment(@Valid CreateCommentDto createCommentDto);
+  CommentDto createComment(@Valid CreateCommentDto createCommentDto);
 
   List<CommentDto> getCommentsByPostId(Long postId);
 }
