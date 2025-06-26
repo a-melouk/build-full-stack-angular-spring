@@ -47,7 +47,7 @@ export class ErrorInterceptor implements HttpInterceptor {
             errorMessage = error.error?.message || 'Une erreur inattendue s\'est produite';
         }
 
-        console.error('HTTP Error:', error.status, errorMessage);
+
         return throwError(() => new Error(errorMessage));
       })
     );

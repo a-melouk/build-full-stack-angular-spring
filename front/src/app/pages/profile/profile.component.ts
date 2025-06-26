@@ -196,7 +196,6 @@ export class ProfileComponent implements OnInit {
         this.subscriptionsLoading = false;
       }),
       catchError(error => {
-        console.error('Error loading user subscriptions:', error);
         this.subscriptionsError = 'Échec du chargement des abonnements. Veuillez réessayer.';
         this.subscriptionsLoading = false;
         return of([]);
@@ -210,10 +209,8 @@ export class ProfileComponent implements OnInit {
     this.subscriptionService.unsubscribe(topicId).pipe(
       tap(message => {
         this.subscriptions = this.subscriptions.filter(sub => sub.topicId !== topicId);
-        console.log(message);
       }),
       catchError(error => {
-        console.error('Error unsubscribing from topic:', error);
         return of(null);
       })
     ).subscribe({

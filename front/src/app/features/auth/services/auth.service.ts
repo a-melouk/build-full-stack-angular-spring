@@ -107,7 +107,6 @@ export class AuthService {
       const storedUser = localStorage.getItem(this.USER_STORAGE_KEY);
       return storedUser ? JSON.parse(storedUser) : null;
     } catch (error) {
-      console.error('Error parsing user data from localStorage:', error);
       localStorage.removeItem(this.USER_STORAGE_KEY);
       return null;
     }
@@ -149,17 +148,14 @@ export class AuthService {
           this.refreshUserData().subscribe({
             next: (freshUserData) => {
               // User data refreshed successfully
-              console.log('User data refreshed after profile update');
             },
             error: (error) => {
-              console.warn('Unable to refresh user data:', error);
               // Don't logout on refresh error, keep the updated data we have
             }
           });
         }),
         catchError(error => {
           // Don't logout on profile update errors - let the component handle it
-          console.error('Error updating profile:', error);
           throw error;
         })
       );
@@ -168,11 +164,6 @@ export class AuthService {
   isAuthenticated(): boolean {
     const user = this.currentUserSubject.value;
     const authenticated = user !== null;
-
-    if (!environment.production) {
-      console.log('user', user);
-      console.log('authenticated', authenticated);
-    }
 
     return authenticated;
   }
