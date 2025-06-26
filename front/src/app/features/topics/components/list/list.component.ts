@@ -44,6 +44,7 @@ export class ListComponent implements OnInit {
               this.subscriptionStatus[topic.id] = isSubscribed;
               completedChecks++;
 
+              // Check if all topics have been processed
               if (completedChecks === totalTopics) {
                 this.loading = false;
               }

@@ -19,7 +19,7 @@ public class CommentController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public String addComment(@Valid @RequestBody CreateCommentDto createCommentDto) {
+  public CommentDto addComment(@Valid @RequestBody CreateCommentDto createCommentDto) {
     return commentService.createComment(createCommentDto);
   }
 
