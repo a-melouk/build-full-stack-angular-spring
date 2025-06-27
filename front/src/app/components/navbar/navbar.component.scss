@@ -259,7 +259,8 @@
     }
 
     &__logo {
-      height: 35px;
+      width: 92px;
+      height: 53px;
     }
   }
 }
@@ -269,10 +270,6 @@
     &__container {
       padding: 0 var(--spacing-sm);
       height: 56px;
-    }
-
-    &__logo {
-      height: 30px;
     }
 
     &__mobile-menu {
