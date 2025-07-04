@@ -27,6 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller for handling user authentication operations.
+ * This includes registration, login, logout, and fetching user profile information.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -49,6 +53,14 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    /**
+     * Registers a new user account.
+     *
+     * @param registerRequest The request body containing registration details (email, username, password).
+     * @param response The HTTP servlet response to set authentication cookies.
+     * @return An {@link AuthResponse} containing the new user's details.
+     * @throws EmailAlreadyExistsException if the email or username is already in use.
+     */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse registerUser(@Valid @RequestBody RegisterRequest registerRequest,
@@ -103,6 +115,14 @@ public class AuthController {
                 .build();
     }
 
+    /**
+     * Authenticates a user and returns a JWT token.
+     *
+     * @param loginRequest The request body containing login credentials (email/username and password).
+     * @param response The HTTP servlet response to set authentication cookies.
+     * @return An {@link AuthResponse} containing the authenticated user's details.
+     * @throws UserNotFoundException if the user cannot be found.
+     */
     @PostMapping("/login")
     public AuthResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         logger.info("Attempting to authenticate user: {}", loginRequest.getEmailOrUsername());
@@ -142,6 +162,13 @@ public class AuthController {
                 .build();
     }
 
+    /**
+     * Logs out the current user by clearing security context and authentication cookies.
+     *
+     * @param request The HTTP servlet request.
+     * @param response The HTTP servlet response.
+     * @return A response entity with an OK status.
+     */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         // Clear authentication cookies
@@ -156,6 +183,11 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Retrieves the details of the currently authenticated user.
+     *
+     * @return A response entity containing the current user's details in an {@link AuthResponse}.
+     */
     @GetMapping("/me")
     public ResponseEntity<AuthResponse> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -165,6 +197,12 @@ public class AuthController {
         return ResponseEntity.ok(userInfo);
     }
 
+    /**
+     * Updates the profile of the currently authenticated user.
+     *
+     * @param userUpdateDto The request body containing the user details to update.
+     * @return A response entity containing the updated user's details in an {@link AuthResponse}.
+     */
     @PutMapping("/profile")
     public ResponseEntity<AuthResponse> updateProfile(@Valid @RequestBody UserUpdateDto userUpdateDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -174,6 +212,12 @@ public class AuthController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    /**
+     * Sets authentication-related cookies in the HTTP response.
+     *
+     * @param response The HTTP servlet response.
+     * @param jwt The JWT token to be stored in the cookies.
+     */
     private void setAuthCookies(HttpServletResponse response, String jwt) {
         // Set access token cookie
         Cookie accessTokenCookie = new Cookie("accessToken", jwt);
@@ -195,6 +239,11 @@ public class AuthController {
         response.addCookie(tokenTypeCookie);
     }
 
+    /**
+     * Clears authentication-related cookies from the HTTP response.
+     *
+     * @param response The HTTP servlet response.
+     */
     private void clearAuthCookies(HttpServletResponse response) {
         // Clear access token cookie
         Cookie accessTokenCookie = new Cookie("accessToken", "");

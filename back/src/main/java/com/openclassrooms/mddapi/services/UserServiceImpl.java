@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+/**
+ * Service implementation for user-related operations.
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -30,18 +33,30 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  /**
+   * Retrieves the currently authenticated user from the security context.
+   *
+   * @return The authenticated {@link User} entity.
+   * @throws ResourceNotFoundException if the user cannot be found.
+   */
   private User getAuthenticatedUser() {
     UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     return userRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userDetails.getUsername()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public UserDto getCurrentUserProfile() {
     User user = getAuthenticatedUser();
     return userMapper.toDto(user);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Transactional
   public UserDto updateUserProfile(@Valid UpdateUserDto updateUserDto) {
@@ -58,6 +73,9 @@ public class UserServiceImpl implements UserService {
     return userMapper.toDto(updatedUser);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Transactional
   public String updateUserPassword(@Valid UpdatePasswordDto updatePasswordDto) {

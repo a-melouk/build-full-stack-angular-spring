@@ -7,9 +7,18 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Mapper for converting {@link Comment} entities to {@link CommentDto} Data Transfer Objects.
+ */
 @Component
 public class CommentMapper {
 
+  /**
+   * Converts a {@link Comment} entity to a {@link CommentDto}.
+   *
+   * @param comment The {@link Comment} entity to convert.
+   * @return The corresponding {@link CommentDto}, or null if the input is null.
+   */
   public CommentDto toDto(Comment comment) {
     if (comment == null) {
       return null;
@@ -22,6 +31,12 @@ public class CommentMapper {
         .build();
   }
 
+  /**
+   * Converts a list of {@link Comment} entities to a list of {@link CommentDto}s.
+   *
+   * @param comments The list of {@link Comment} entities to convert.
+   * @return A list of {@link CommentDto}s, or null if the input list is null.
+   */
   public List<CommentDto> toDtoList(List<Comment> comments) {
     if (comments == null) {
       return null;

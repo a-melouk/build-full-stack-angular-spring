@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service implementation for comment-related operations.
+ */
 @Service
 public class CommentServiceImpl implements CommentService {
 
@@ -33,6 +36,9 @@ public class CommentServiceImpl implements CommentService {
   @Autowired
   private CommentMapper commentMapper;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public CommentDto createComment(@Valid CreateCommentDto createCommentDto) {
     UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -52,6 +58,9 @@ public class CommentServiceImpl implements CommentService {
     return commentMapper.toDto(savedComment);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public List<CommentDto> getCommentsByPostId(Long postId) {
     if (!postRepository.existsById(postId)) {

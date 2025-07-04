@@ -17,11 +17,22 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Global exception handler for the application.
+ * This class captures and processes exceptions thrown from any controller,
+ * returning standardized error responses.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    /**
+     * Handles {@link ResourceNotFoundException}.
+     *
+     * @param ex The exception instance.
+     * @return A map containing the error message.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleResourceNotFound(ResourceNotFoundException ex) {
@@ -30,6 +41,12 @@ public class GlobalExceptionHandler {
         return error;
     }
 
+    /**
+     * Handles {@link BadRequestException}.
+     *
+     * @param ex The exception instance.
+     * @return A map containing the error message.
+     */
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleBadRequest(BadRequestException ex) {
@@ -38,6 +55,12 @@ public class GlobalExceptionHandler {
         return error;
     }
 
+    /**
+     * Handles {@link EmailAlreadyExistsException}.
+     *
+     * @param ex The exception instance.
+     * @return A map containing the error message.
+     */
     @ExceptionHandler(EmailAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
@@ -46,6 +69,12 @@ public class GlobalExceptionHandler {
         return error;
     }
 
+    /**
+     * Handles {@link UserNotFoundException}.
+     *
+     * @param ex The exception instance.
+     * @return A map containing the error message.
+     */
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleUserNotFoundException(UserNotFoundException ex) {
@@ -54,6 +83,12 @@ public class GlobalExceptionHandler {
         return error;
     }
 
+    /**
+     * Handles validation errors from {@link MethodArgumentNotValidException}.
+     *
+     * @param ex The exception instance.
+     * @return A map of field names to error messages.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -66,6 +101,12 @@ public class GlobalExceptionHandler {
         return errors;
     }
 
+    /**
+     * Handles generic {@link RuntimeException} as a fallback.
+     *
+     * @param ex The exception instance.
+     * @return A generic internal server error message.
+     */
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleGenericRuntimeException(RuntimeException ex) {

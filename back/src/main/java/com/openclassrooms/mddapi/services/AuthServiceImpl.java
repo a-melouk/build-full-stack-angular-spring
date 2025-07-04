@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service implementation for authentication-related operations.
+ */
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -24,11 +27,14 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public AuthResponse updateProfile(UserUpdateDto userUpdateDto, String currentUserEmail) {
         User user = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé : " + currentUserEmail));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + currentUserEmail));
 
         logger.info("Updating profile for user: {}", currentUserEmail);
         boolean hasChanges = false;
@@ -83,6 +89,9 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AuthResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)

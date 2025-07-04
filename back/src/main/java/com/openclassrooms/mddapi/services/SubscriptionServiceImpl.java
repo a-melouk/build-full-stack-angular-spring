@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service implementation for subscription-related operations.
+ */
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
 
@@ -29,6 +32,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
   @Autowired
   private TopicRepository topicRepository;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String subscribe(Long topicId) {
     UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -50,6 +56,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     return "Successfully subscribed to " + topic.getName();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String unsubscribe(Long topicId) {
     UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -66,6 +75,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     return "Successfully unsubscribed from " + topic.getName();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public List<SubscriptionDto> getUserSubscriptions() {
     UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -86,6 +98,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         .collect(Collectors.toList());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isUserSubscribedToTopic(Long topicId) {
     UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

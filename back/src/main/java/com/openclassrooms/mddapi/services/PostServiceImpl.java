@@ -21,6 +21,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service implementation for post-related operations.
+ */
 @Service
 public class PostServiceImpl implements PostService {
 
@@ -36,6 +39,9 @@ public class PostServiceImpl implements PostService {
         @Autowired
         private SubscriptionRepository subscriptionRepository;
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public List<PostDto> getFeed(String sort) {
                 // Get authenticated user
@@ -72,6 +78,9 @@ public class PostServiceImpl implements PostService {
                                 .collect(Collectors.toList());
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public PostDto getById(Long id) {
                 Post post = postRepository.findById(id)
@@ -79,6 +88,9 @@ public class PostServiceImpl implements PostService {
                 return toDto(post);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public PostDto create(CreatePostDto createPostDto) {
                 Topic topic = topicRepository.findById(createPostDto.getTopicId())
@@ -99,6 +111,12 @@ public class PostServiceImpl implements PostService {
                 return toDto(saved);
         }
 
+        /**
+         * Converts a {@link Post} entity to a {@link PostDto}.
+         *
+         * @param post The post entity to convert.
+         * @return The corresponding DTO.
+         */
         private PostDto toDto(Post post) {
                 return PostDto.builder()
                                 .id(post.getId())
@@ -115,6 +133,12 @@ public class PostServiceImpl implements PostService {
                                 .build();
         }
 
+        /**
+         * Converts a {@link Comment} entity to a {@link CommentDto}.
+         *
+         * @param comment The comment entity to convert.
+         * @return The corresponding DTO.
+         */
         private CommentDto toCommentDto(Comment comment) {
                 return CommentDto.builder()
                                 .id(comment.getId())

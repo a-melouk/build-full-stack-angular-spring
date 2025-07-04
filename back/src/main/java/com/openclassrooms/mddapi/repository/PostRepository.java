@@ -4,11 +4,10 @@ import com.openclassrooms.mddapi.models.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
+/**
+ * Repository interface for {@link Post} entities.
+ * Provides standard CRUD operations and custom query methods for accessing post data.
+ */
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findByTopicId(Long topicId);
-    List<Post> findByUserId(Long userId);
-    List<Post> findByTopic_IdIn(List<Long> topicIds);
 }

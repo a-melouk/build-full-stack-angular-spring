@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service implementation for topic-related operations.
+ */
 @Service
 public class TopicServiceImpl implements TopicService {
 
@@ -19,12 +22,18 @@ public class TopicServiceImpl implements TopicService {
     @Autowired
     private TopicMapper topicMapper;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<TopicDto> findAll() {
         List<Topic> topics = this.topicRepository.findAll();
         return topicMapper.toDtoList(topics);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TopicDto findById(Long id) {
         Topic topic = topicRepository.findById(id)
